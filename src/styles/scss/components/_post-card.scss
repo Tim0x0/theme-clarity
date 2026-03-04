@@ -90,7 +90,14 @@ $breakpoint-phone: 528px !default;
 }
 
 .article-category {
-	color: var(--cg-color);
+	color: var(--category-color, var(--cg-color));
+
+	img {
+		width: 1em;
+		height: 1em;
+		border-radius: 0.2em;
+		object-fit: cover;
+	}
 }
 
 span:not([class]):empty {

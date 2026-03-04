@@ -27,6 +27,10 @@ spec:
       label: 图标
       format: dataurl
       value-only: true
+    - $formkit: color
+      name: color
+      label: 颜色
+      value: "#64748b"
 ---
 apiVersion: v1alpha1
 kind: AnnotationSetting

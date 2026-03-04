@@ -172,6 +172,13 @@ $breakpoint-mobile: 768px !default;
 		gap: 0.3em;
 	}
 
+	img {
+		width: 1em;
+		height: 1em;
+		border-radius: 0.2em;
+		object-fit: cover;
+	}
+
 	a {
 		color: inherit;
 

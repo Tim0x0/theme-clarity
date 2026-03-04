@@ -29,6 +29,7 @@
     <th:block th:if="${theme.config.development.enabled}">
       <script type="module" src="http://localhost:5173/@vite/client"></script>
       <script type="module" src="http://localhost:5173/main.ts"></script>
+      <script type="module" src="http://localhost:5173/auth.ts"></script>
     </th:block>
 
     <th:block th:unless="${theme.config.development.enabled}">

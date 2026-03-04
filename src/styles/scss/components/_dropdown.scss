@@ -26,6 +26,13 @@
   &:hover {
     color: var(--c-primary);
   }
+
+  img {
+    width: 1em;
+    height: 1em;
+    border-radius: 0.2em;
+    object-fit: cover;
+  }
 }
 
 // DaisyUI dropdown 样式覆盖
@@ -51,6 +58,13 @@
       &.active {
         background: var(--c-primary-soft);
         color: var(--c-primary);
+      }
+
+      img {
+        width: 1em;
+        height: 1em;
+        border-radius: 0.2em;
+        object-fit: cover;
       }
     }
   }

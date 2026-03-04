@@ -30,7 +30,7 @@
     right: -50%;
     width: 100%;
     height: 100%;
-    background: var(--c-primary);
+    background: var(--category-color, var(--c-primary));
     opacity: 0;
     border-radius: 50%;
     transform: scale(0);
@@ -39,7 +39,7 @@
 
   &:hover {
     transform: translateY(-4px);
-    border-color: var(--c-primary);
+    border-color: var(--category-color, var(--c-primary));
     
     &::before {
       opacity: 0.05;
@@ -47,21 +47,28 @@
     }
     
     .category-card-icon {
-      color: var(--c-primary);
+      color: var(--category-color, var(--c-primary));
       transform: scale(1.1);
     }
     
     .category-card-title {
-      color: var(--c-primary);
+      color: var(--category-color, var(--c-primary));
     }
   }
 }
 
 .category-card-icon {
   font-size: 1.5em;
-  color: var(--c-text-3);
+  color: var(--category-color, var(--c-text-3));
   margin-bottom: 0.75rem;
   transition: all 0.3s;
+}
+
+.category-card-icon-image {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
+  object-fit: cover;
 }
 
 .category-card-body {
@@ -102,7 +109,7 @@
 .category-card-count {
   font-size: 0.8em;
   font-weight: 500;
-  color: var(--c-primary);
+  color: var(--category-color, var(--c-primary));
 }
 
 .category-card-arrow {
@@ -112,6 +119,6 @@
   
   .category-card:hover & {
     transform: translateX(4px);
-    color: var(--c-primary);
+    color: var(--category-color, var(--c-primary));
   }
 }

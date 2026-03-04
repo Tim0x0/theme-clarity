@@ -35,9 +35,14 @@
           <span th:text="${post.stats.comment}"></span> 评论
         </span>
 
-        <span th:if="${not #lists.isEmpty(post.categories)}">
-          <span class="icon-[ph--folder-bold]"></span>
-          <a th:href="${post.categories[0].status.permalink}" th:text="${post.categories[0].spec.displayName}"></a>
+        <span
+          th:if="${not #lists.isEmpty(post.categories)}"
+          th:with="categoryData=${post.categories[0]}, categoryIcon=${categoryData.metadata?.annotations?.get('categoryIicon')}, categoryColor=${categoryData.metadata?.annotations?.get('color')}"
+          th:style="${#strings.isEmpty(categoryColor) ? null : 'color: ' + categoryColor}"
+        >
+          <img th:if="${not #strings.isEmpty(categoryIcon)}" th:src="${categoryIcon}" alt="" />
+          <span th:if="${#strings.isEmpty(categoryIcon)}" class="icon-[ph--folder-bold]"></span>
+          <a th:href="${categoryData.status.permalink}" th:text="${categoryData.spec.displayName}"></a>
         </span>
 
         <span th:if="${post.stats.visit != null}">

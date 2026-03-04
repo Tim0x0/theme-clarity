@@ -6,11 +6,15 @@
   <th:block th:fragment="content">
     <div class="categories-page">
       <div class="categories-grid">
-        <a th:each="cat, iterStat : ${categories}" 
-           th:href="${cat.status.permalink}"
-           th:style="'--delay: ' + ${iterStat.index * 0.05} + 's'"
-           class="category-card card">
-          <span class="category-card-icon icon-[ph--folder-bold]"></span>
+        <a
+          th:each="cat, iterStat : ${categories}"
+          th:with="categoryIcon=${cat.metadata?.annotations?.get('categoryIicon')}, categoryColor=${cat.metadata?.annotations?.get('color')}"
+          th:href="${cat.status.permalink}"
+          th:style="${'--delay: ' + (iterStat.index * 0.05) + 's;' + (#strings.isEmpty(categoryColor) ? '' : '--category-color: ' + categoryColor + ';')}"
+          class="category-card card"
+        >
+          <img th:if="${not #strings.isEmpty(categoryIcon)}" class="category-card-icon category-card-icon-image" th:src="${categoryIcon}" alt="" />
+          <span th:if="${#strings.isEmpty(categoryIcon)}" class="category-card-icon icon-[ph--folder-bold]"></span>
           <div class="category-card-body">
             <h2 class="category-card-title" th:text="${cat.spec.displayName}">分类名称</h2>
             <p th:if="${not #strings.isEmpty(cat.spec.description)}" 

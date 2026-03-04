@@ -4,11 +4,11 @@
   <div class="order-toggle">
     <div class="dropdown dropdown-end">
       <div tabindex="0" role="button" class="dropdown-trigger">
-        <th:block th:with="iconVal = ${category?.metadata?.annotations?.get('categoryIicon')}">
+        <th:block th:with="iconVal = ${category?.metadata?.annotations?.get('categoryIicon')}, colorVal = ${category?.metadata?.annotations?.get('color')}">
           <img th:if="${not #strings.isEmpty(iconVal)}" th:src="${iconVal}" alt="" />
           <span th:if="${#strings.isEmpty(iconVal)}" class="icon-[ph--folder-bold]"></span>
+          <span th:text="${category != null ? category.spec.displayName : '全部分类'}" th:style="${#strings.isEmpty(colorVal) ? null : 'color: ' + colorVal}">全部分类</span>
         </th:block>
-        <span th:text="${category != null} ? ${category.spec.displayName} : '全部分类'">全部分类</span>
         <span class="icon-[ph--caret-down-bold]" style="font-size: 0.75em"></span>
       </div>
       <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-9999 w-48 p-2 shadow-lg">
@@ -38,14 +38,14 @@
         <span th:each="i : ${#numbers.sequence(1, level)}" class="cat-indent-line"></span>
         <span class="cat-indent-corner">└</span>
       </span>
-      <th:block th:with="iconVal = ${cat.metadata?.annotations?.get('categoryIicon')}">
+      <th:block th:with="iconVal = ${cat.metadata?.annotations?.get('categoryIicon')}, colorVal = ${cat.metadata?.annotations?.get('color')}">
         <img th:if="${not #strings.isEmpty(iconVal)}" th:src="${iconVal}" alt="" />
         <span
           th:if="${#strings.isEmpty(iconVal)}"
           th:classappend="${level == 0} ? 'icon-[ph--folder]' : 'icon-[ph--folder-simple]'"
         ></span>
+        <span th:text="${cat.spec.displayName}" th:style="${#strings.isEmpty(colorVal) ? null : 'color: ' + colorVal}"></span>
       </th:block>
-      <span th:text="${cat.spec.displayName}"></span>
     </a>
   </li>
   <!-- 递归渲染子分类 -->
