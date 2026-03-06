@@ -1,0 +1,259 @@
+<th:block th:fragment="layout (title,head,body)">
+  <body class="gateway-layout-body" id="clarity-root">
+    <div class="gateway-shell">
+      <aside class="gateway-visual-panel">
+        <div class="gateway-visual-bg-grid"></div>
+        <div class="gateway-visual-glow gateway-visual-glow-top"></div>
+        <div class="gateway-visual-glow gateway-visual-glow-bottom"></div>
+
+        <div class="gateway-visual-content">
+          <a class="gateway-brand" href="/">
+            <span class="gateway-brand-icon icon-[ph--sparkle-fill]"></span>
+            <span th:text="${site.title}">YourBrand</span>
+          </a>
+
+          <div class="gateway-hero">
+            <div class="gateway-scene" id="gateway-scene">
+              <div class="gateway-character gateway-character-purple" id="gw-char-purple">
+                <div class="gateway-white-eyes" id="gw-purple-eyes">
+                  <span class="gateway-white-eye"><i class="gateway-pupil"></i></span>
+                  <span class="gateway-white-eye"><i class="gateway-pupil"></i></span>
+                </div>
+              </div>
+
+              <div class="gateway-character gateway-character-black" id="gw-char-black">
+                <div class="gateway-white-eyes" id="gw-black-eyes">
+                  <span class="gateway-white-eye"><i class="gateway-pupil"></i></span>
+                  <span class="gateway-white-eye"><i class="gateway-pupil"></i></span>
+                </div>
+              </div>
+
+              <div class="gateway-character gateway-character-orange" id="gw-char-orange">
+                <div class="gateway-dot-eyes" id="gw-orange-eyes">
+                  <span class="gateway-dot-eye"></span>
+                  <span class="gateway-dot-eye"></span>
+                </div>
+              </div>
+
+              <div class="gateway-character gateway-character-yellow" id="gw-char-yellow">
+                <div class="gateway-dot-eyes" id="gw-yellow-eyes">
+                  <span class="gateway-dot-eye"></span>
+                  <span class="gateway-dot-eye"></span>
+                </div>
+                <div class="gateway-yellow-mouth" id="gw-yellow-mouth"></div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="gateway-visual-footer">
+            <a th:href="@{/privacy}" rel="nofollow">Privacy Policy</a>
+            <a th:href="@{/terms}" rel="nofollow">Terms of Service</a>
+            <a th:href="@{/contact}" rel="nofollow">Contact</a>
+          </footer>
+        </div>
+      </aside>
+
+      <main class="gateway-auth-panel">
+        <div class="gateway-auth-content">
+          <th:block th:replace="${body}" />
+        </div>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const purple = document.getElementById("gw-char-purple");
+        const black = document.getElementById("gw-char-black");
+        const orange = document.getElementById("gw-char-orange");
+        const yellow = document.getElementById("gw-char-yellow");
+        const purpleEyes = document.getElementById("gw-purple-eyes");
+        const blackEyes = document.getElementById("gw-black-eyes");
+        const orangeEyes = document.getElementById("gw-orange-eyes");
+        const yellowEyes = document.getElementById("gw-yellow-eyes");
+        const yellowMouth = document.getElementById("gw-yellow-mouth");
+        if (
+          !purple ||
+          !black ||
+          !orange ||
+          !yellow ||
+          !purpleEyes ||
+          !blackEyes ||
+          !orangeEyes ||
+          !yellowEyes ||
+          !yellowMouth
+        ) {
+          return;
+        }
+
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let isTyping = false;
+        let isLookingAtEachOther = false;
+        let lookTimer = null;
+
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+        const calculatePosition = (element) => {
+          const rect = element.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 3;
+          const deltaX = mouseX - centerX;
+          const deltaY = mouseY - centerY;
+          return {
+            faceX: clamp(deltaX / 20, -15, 15),
+            faceY: clamp(deltaY / 30, -10, 10),
+            bodySkew: clamp(-deltaX / 120, -6, 6),
+          };
+        };
+
+        const getPasswordInputs = () =>
+          Array.from(document.querySelectorAll("input")).filter(
+            (input) =>
+              input instanceof HTMLInputElement &&
+              (input.type === "password" ||
+                input.name?.toLowerCase().includes("password") ||
+                input.id?.toLowerCase().includes("password")),
+          );
+
+        const getPasswordState = () => {
+          const passwordInputs = getPasswordInputs();
+          const hasPassword = passwordInputs.some((input) => input.value && input.value.length > 0);
+          const isVisible = passwordInputs.some(
+            (input) => input.value && input.value.length > 0 && input.type === "text",
+          );
+          return { hasPassword, isVisible };
+        };
+
+        const blinkRandomly = (target) => {
+          const schedule = () => {
+            const nextIn = Math.random() * 4000 + 3000;
+            setTimeout(() => {
+              target.classList.add("blink");
+              setTimeout(() => {
+                target.classList.remove("blink");
+                schedule();
+              }, 150);
+            }, nextIn);
+          };
+          schedule();
+        };
+
+        const setWhitePupilOffset = (container, x, y) => {
+          container.style.setProperty("--pupil-x", `${x}px`);
+          container.style.setProperty("--pupil-y", `${y}px`);
+        };
+
+        const updateCharacters = () => {
+          const purplePos = calculatePosition(purple);
+          const blackPos = calculatePosition(black);
+          const yellowPos = calculatePosition(yellow);
+          const orangePos = calculatePosition(orange);
+          const passwordState = getPasswordState();
+          const passwordVisible = passwordState.hasPassword && passwordState.isVisible;
+          const passwordHiddenTyping = passwordState.hasPassword && !passwordVisible;
+
+          if (passwordVisible) {
+            purple.style.height = "400px";
+            purple.style.transform = "skewX(0deg)";
+            black.style.transform = "skewX(0deg)";
+            yellow.style.transform = "skewX(0deg)";
+            orange.style.transform = "skewX(0deg)";
+
+            purpleEyes.style.left = "20px";
+            purpleEyes.style.top = "35px";
+            blackEyes.style.left = "10px";
+            blackEyes.style.top = "28px";
+            orangeEyes.style.left = "50px";
+            orangeEyes.style.top = "85px";
+            yellowEyes.style.left = "20px";
+            yellowEyes.style.top = "35px";
+            yellowMouth.style.left = "10px";
+            yellowMouth.style.top = "88px";
+
+            setWhitePupilOffset(purpleEyes, -4, -4);
+            setWhitePupilOffset(blackEyes, -4, -4);
+            return;
+          }
+
+          purple.style.height = isTyping || passwordHiddenTyping ? "440px" : "400px";
+          purple.style.transform =
+            isTyping || passwordHiddenTyping
+              ? `skewX(${purplePos.bodySkew - 12}deg) translateX(40px)`
+              : `skewX(${purplePos.bodySkew}deg)`;
+
+          black.style.transform = isLookingAtEachOther
+            ? `skewX(${blackPos.bodySkew * 1.5 + 10}deg) translateX(20px)`
+            : isTyping || passwordHiddenTyping
+              ? `skewX(${blackPos.bodySkew * 1.5}deg)`
+              : `skewX(${blackPos.bodySkew}deg)`;
+
+          yellow.style.transform = `skewX(${yellowPos.bodySkew}deg)`;
+          orange.style.transform = `skewX(${orangePos.bodySkew}deg)`;
+
+          purpleEyes.style.left = isLookingAtEachOther ? "55px" : `${45 + purplePos.faceX}px`;
+          purpleEyes.style.top = isLookingAtEachOther ? "65px" : `${40 + purplePos.faceY}px`;
+          blackEyes.style.left = isLookingAtEachOther ? "32px" : `${26 + blackPos.faceX}px`;
+          blackEyes.style.top = isLookingAtEachOther ? "12px" : `${32 + blackPos.faceY}px`;
+          orangeEyes.style.left = `${82 + orangePos.faceX}px`;
+          orangeEyes.style.top = `${90 + orangePos.faceY}px`;
+          yellowEyes.style.left = `${52 + yellowPos.faceX}px`;
+          yellowEyes.style.top = `${40 + yellowPos.faceY}px`;
+          yellowMouth.style.left = `${40 + yellowPos.faceX}px`;
+          yellowMouth.style.top = `${88 + yellowPos.faceY}px`;
+
+          if (isLookingAtEachOther) {
+            setWhitePupilOffset(purpleEyes, 3, 4);
+            setWhitePupilOffset(blackEyes, 0, -4);
+          } else {
+            setWhitePupilOffset(purpleEyes, 0, 0);
+            setWhitePupilOffset(blackEyes, 0, 0);
+          }
+        };
+
+        const startLookAtEachOther = () => {
+          isLookingAtEachOther = true;
+          if (lookTimer) clearTimeout(lookTimer);
+          lookTimer = setTimeout(() => {
+            isLookingAtEachOther = false;
+          }, 800);
+        };
+
+        const updateTypingState = () => {
+          const active = document.activeElement;
+          if (!(active instanceof HTMLInputElement)) {
+            isTyping = false;
+            return;
+          }
+          const isPasswordField =
+            active.type === "password" ||
+            active.name?.toLowerCase().includes("password") ||
+            active.id?.toLowerCase().includes("password");
+          const typingNow = !isPasswordField;
+          if (typingNow && !isTyping) {
+            startLookAtEachOther();
+          }
+          isTyping = typingNow;
+        };
+
+        document.addEventListener("mousemove", (event) => {
+          mouseX = event.clientX;
+          mouseY = event.clientY;
+        });
+
+        document.addEventListener("focusin", updateTypingState);
+        document.addEventListener("focusout", () => setTimeout(updateTypingState, 0));
+        document.addEventListener("input", updateTypingState);
+        document.addEventListener("click", () => setTimeout(updateTypingState, 0));
+
+        blinkRandomly(purpleEyes);
+        blinkRandomly(blackEyes);
+        updateTypingState();
+        const animationLoop = () => {
+          updateCharacters();
+          window.requestAnimationFrame(animationLoop);
+        };
+        animationLoop();
+      })();
+    </script>
+  </body>
+</th:block>

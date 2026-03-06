@@ -1,15 +1,34 @@
 import { defineConfig } from "vite";
 import { fileURLToPath } from "url";
 import path from "path";
+import fs from "fs";
 import tailwindcss from "@tailwindcss/vite";
 import preact from "@preact/preset-vite";
+
+// 获取 auth 目录下的所有 css 文件
+function getAuthEntries(): Record<string, string> {
+  const authDir = path.resolve(__dirname, "src/styles/auth");
+  const entries: Record<string, string> = {};
+
+  if (fs.existsSync(authDir)) {
+    const files = fs.readdirSync(authDir);
+    files.forEach((file) => {
+      if (file.endsWith(".css")) {
+        const name = file.replace(".css", "");
+        entries[`auth/${name}`] = path.resolve(authDir, file);
+      }
+    });
+  }
+
+  return entries;
+}
 
 export default ({ mode }: { mode: string }) => {
   const isProduction = mode === "production";
   const entries = {
     main: path.resolve(__dirname, "src/main.ts"),
-    auth: path.resolve(__dirname, "src/auth.ts"),
     shop: path.resolve(__dirname, "src/styles/shop/main.scss"),
+    ...getAuthEntries(),
   };
 
   return defineConfig({

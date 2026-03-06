@@ -1,0 +1,60 @@
+<th:block th:fragment="layout (title,head,body)">
+  <div
+    id="z-sidebar-bgmask"
+    class="hidden"
+    onclick="
+      document.getElementById('z-sidebar').classList.remove('show');
+      this.classList.add('hidden');
+      document.getElementById('toggle-sidebar')?.classList.remove('active');
+    "
+  ></div>
+
+  <div
+    id="z-aside-bgmask"
+    class="hidden"
+    onclick="
+      document.getElementById('z-aside').classList.remove('show');
+      this.classList.add('hidden');
+      document.getElementById('toggle-aside')?.classList.remove('active');
+    "
+  ></div>
+
+  <th:block th:replace="~{modules/sidebar :: sidebar}" />
+
+  <div id="content">
+    <main id="main-content">
+      <th:block th:replace="${body}" />
+
+      <th:block th:replace="~{modules/footer :: footer}" />
+    </main>
+  </div>
+
+  <div id="z-panel">
+    <button
+      id="toggle-sidebar"
+      aria-label="切换菜单"
+      onclick="
+        (function (btn) {
+          var sb = document.getElementById('z-sidebar'),
+            mk = document.getElementById('z-sidebar-bgmask');
+          sb.classList.toggle('show');
+          mk.classList.toggle('hidden');
+          btn.classList.toggle('active');
+        })(this)
+      "
+    >
+      <span class="icon-[ph--sidebar-duotone] rtl-flip" style="display: block"></span>
+    </button>
+    <button id="back-to-top" aria-label="返回顶部" style="display: none">
+      <span class="icon-[ph--arrow-up-bold]" style="display: block"></span>
+    </button>
+  </div>
+
+  <button id="pc-back-to-top" class="pc-back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+    <svg class="svgIcon" viewBox="0 0 384 512">
+      <path
+        d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"
+      ></path>
+    </svg>
+  </button>
+</th:block>
