@@ -41,7 +41,9 @@ $breakpoint-widescreen: 1080px;
 @use "./scss/components/categories";
 @use "./scss/components/error";
 @use "./scss/components/author";
-@use "./scss/components/links";
+@use "./scss/components/links" with (
+  $breakpoint-phone: $breakpoint-phone
+);
 @use "./scss/components/shuttle";
 @use "./scss/components/moments";
 @use "./scss/components/friends";

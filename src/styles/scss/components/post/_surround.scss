@@ -1,0 +1,63 @@
+// ========================================
+// 上下篇导航 (PostSurround)
+// ========================================
+.surround-post {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 3rem 1rem;
+}
+
+.surround-link {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	transition: color 0.2s;
+
+	&.no-link {
+		opacity: 0.4;
+		user-select: none;
+	}
+
+	&.align-end {
+		flex-direction: row-reverse;
+		text-align: end;
+	}
+
+	> .surround-text {
+		transition: transform 0.2s;
+
+		> .title {
+			display: block;
+		}
+
+		> .date {
+			display: block;
+			opacity: 0.6;
+			font-size: 0.8rem;
+		}
+	}
+
+	> [class^="icon-"] {
+		opacity: 0.5;
+		font-size: 2rem;
+		transition: all 0.2s;
+	}
+
+	&:not(.no-link):hover {
+		color: var(--c-primary);
+
+		> .surround-text {
+			transform: translateX(-1em);
+		}
+
+		&.align-end > .surround-text {
+			transform: translateX(1em);
+		}
+
+		> [class^="icon-"] {
+			opacity: 0.2;
+			transform: scale(2);
+		}
+	}
+}
