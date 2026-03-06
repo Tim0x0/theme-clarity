@@ -30,6 +30,7 @@ export default ({ mode }: { mode: string }) => {
     shop: path.resolve(__dirname, "src/styles/shop/main.scss"),
     moments: path.resolve(__dirname, "src/styles/moments/main.scss"),
     links: path.resolve(__dirname, "src/styles/links/main.scss"),
+    friends: path.resolve(__dirname, "src/styles/friends/main.scss"),
     ...getAuthEntries(),
   };
 

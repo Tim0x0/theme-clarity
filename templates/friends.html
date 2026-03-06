@@ -3,6 +3,13 @@
   xmlns:th="https://www.thymeleaf.org"
   th:replace="~{modules/layout :: html(content = ~{::content}, showAside = true, pageTitle = '朋友圈', head = ~{::head})}"
 >
+  <th:block th:fragment="head">
+    <link
+      rel="stylesheet"
+      data-pjax-conditional="friends"
+      th:href="@{/assets/dist/friends.css?v={version}(version=${theme.spec.version})}"
+    />
+  </th:block>
   <th:block th:fragment="content">
     <div class="friends-header">
       <div class="friends-title">
