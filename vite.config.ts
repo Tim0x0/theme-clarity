@@ -32,6 +32,7 @@ export default ({ mode }: { mode: string }) => {
     links: path.resolve(__dirname, "src/styles/links/main.scss"),
     friends: path.resolve(__dirname, "src/styles/friends/main.scss"),
     bangumis: path.resolve(__dirname, "src/styles/bangumis/main.scss"),
+    photos: path.resolve(__dirname, "src/styles/photos/main.scss"),
     ...getAuthEntries(),
   };
 
