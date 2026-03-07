@@ -4,11 +4,7 @@
   th:replace="~{modules/layout :: html(content = ~{::content}, showAside = false, pageTitle = (${theme.config.links?.title} ?: '友链'), isLinksPage = true, head = ~{::head})}"
 >
   <th:block th:fragment="head">
-    <link
-      rel="stylesheet"
-      data-pjax-conditional="links"
-      th:href="@{/assets/dist/links.css?v={version}(version=${theme.spec.version})}"
-    />
+    <th:block th:replace="~{modules/head :: links-head}"></th:block>
   </th:block>
   <th:block th:fragment="content">
     <!-- 移动端页头 -->

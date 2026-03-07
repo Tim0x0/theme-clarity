@@ -4,11 +4,7 @@
   th:replace="~{modules/layout :: html(content = ~{::content}, showAside = false, pageTitle = (${theme.config.plugins?.photos?.title} ?: '图库'), head = ~{::head})}"
 >
   <th:block th:fragment="head">
-    <link
-      rel="stylesheet"
-      data-pjax-conditional="photos"
-      th:href="@{/assets/dist/photos.css?v={version}(version=${theme.spec.version})}"
-    />
+    <th:block th:replace="~{modules/head :: photos-head}" />
   </th:block>
   <th:block th:fragment="content">
     <div class="page-header">
