@@ -827,6 +827,12 @@ spec:
               help: 使用 {days} 作为实际天数的占位符
               if: "$get(outdated_enabled).value === true"
               validation: required
+        - $formkit: attachment
+          name: poster_default
+          label: 海报默认封面图
+          help: 默认封面图，用于文章无封面图时显示
+          accepts:
+            - "image/*"
     - group: links
       label: 友链页面
       formSchema:
