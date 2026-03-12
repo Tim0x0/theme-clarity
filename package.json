@@ -22,7 +22,8 @@
     "html2canvas": "^1.4.1",
     "pjax": "^0.2.8",
     "preact": "^10.27.2",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "twikoo": "1.7.2"
   },
   "devDependencies": {
     "@halo-dev/theme-package-cli": "^1.0.0",

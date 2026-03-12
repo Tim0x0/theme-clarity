@@ -9,6 +9,7 @@ import { mountPhotoGallery, mountWeather } from "./preact";
 import { initFancybox } from "./utils/fancybox";
 import { initLinkSubmit } from "./links-submit";
 import { generateQRCode, generatePoster } from "./utils/poster";
+import { initTwikooComments } from "./utils/twikoo";
 import { registerAlpineComponents } from "./alpine";
 import { initPjax } from "./pjax/pjax";
 import { registerPjaxHooks } from "./pjax/pjax-hooks";
@@ -55,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initImageCaption();
   initActiveNavItem();
   moments_tags();
+  void initTwikooComments();
   initFloatingPagination();
 });
 

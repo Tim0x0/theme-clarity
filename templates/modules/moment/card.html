@@ -1,7 +1,7 @@
 <th:block th:fragment="content">
   <article
     th:each="moment,iterStat : ${moments.items}"
-    th:with="content=${moment.spec.content}"
+    th:with="content=${moment.spec.content}, twikooEnabled=${theme.config.post?.twikoo?.enabled == true}"
     class="moment-card"
     th:id="|moment-${moment.metadata.name}|"
     th:style="'--delay: ' + ${iterStat.index * 0.05} + 's'"
@@ -44,6 +44,7 @@
       <div class="moment-actions">
         <th:block th:replace="~{modules/moment/common :: like-button}"></th:block>
         <button
+          th:if="${haloCommentEnabled and !twikooEnabled}"
           class="action-btn comment"
           title="评论"
           onclick="this.closest('.moment-card').querySelector('.moment-comment')?.classList.toggle('show')"
@@ -51,13 +52,22 @@
           <span class="icon-[ph--chat-circle-bold]"></span>
           <span th:text="${moment.stats.approvedComment ?: 0}"></span>
         </button>
+        <a
+          th:if="${twikooEnabled}"
+          class="action-btn comment"
+          title="查看评论"
+          th:href="|/moments/${moment.metadata.name}#comment|"
+        >
+          <span class="icon-[ph--chat-circle-bold]"></span>
+          <span th:text="${moment.stats.approvedComment ?: 0}"></span>
+        </a>
         <th:block
           th:replace="~{modules/moment/common :: share-button(url=|/moments/${moment.metadata.name}|)}"
         ></th:block>
       </div>
     </footer>
 
-    <div th:if="${haloCommentEnabled}" class="moment-comment" th:id="|comment-${moment.metadata.name}|">
+    <div th:if="${haloCommentEnabled and !twikooEnabled}" class="moment-comment" th:id="|comment-${moment.metadata.name}|">
       <div class="comment-header">
         <span class="icon-[ph--chat-circle-text-bold]"></span>
         <span>评论</span>

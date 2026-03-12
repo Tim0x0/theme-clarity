@@ -8,6 +8,7 @@ import { initBackToTop } from "./back-to-top";
 import { momentsTags } from "./moments-tags";
 import { initMermaid } from "./mermaid";
 import { syncThemeConfig } from "./theme-config";
+import { initTwikooComments } from "../../utils/twikoo";
 
 export { syncThemeConfig } from "./theme-config";
 export { reinitializeAlpineComponents } from "./alpine";
@@ -38,4 +39,5 @@ export const reinitializeComponents = () => {
   momentsTags();
   syncThemeConfig();
   initMermaid();
+  void initTwikooComments();
 };

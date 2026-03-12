@@ -165,3 +165,14 @@
     margin-bottom: 1rem;
   }
 }
+
+.twikoo-config-tip {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--c-border);
+  border-radius: 0.6rem;
+  background: var(--c-bg-soft);
+  color: var(--c-text-2);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
