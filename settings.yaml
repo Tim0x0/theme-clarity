@@ -132,6 +132,27 @@ spec:
           value: "#60a5fa"
           help: 用于次要高亮、悬停状态等
           validation: required
+        - $formkit: select
+          name: font_source
+          id: font_source
+          label: 字体来源
+          value: theme
+          help: 选择字体来源
+          options:
+            - value: theme
+              label: 主题自带
+            - value: system
+              label: 系统字体
+            - value: custom
+              label: 自定义
+        - $formkit: code
+          if: "$get(font_source).value === 'custom'"
+          name: custom_font_css
+          id: custom_font_css
+          label: 自定义字体 CSS
+          language: css
+          height: 150px
+          help: 填写 @font-face 代码，留空则使用系统字体
         - $formkit: code
           name: logo_font_css
           label: Logo 字体样式
