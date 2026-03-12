@@ -17,6 +17,10 @@ declare global {
         enable_fancybox?: boolean;
         enable_pjax?: boolean;
       };
+      style?: {
+        theme_mode?: "light" | "dark" | "system";
+        caption_blacklist?: Array<{ realNode: { class_name: string } }>;
+      };
     };
     reinitializeComponents?: () => void;
   }
