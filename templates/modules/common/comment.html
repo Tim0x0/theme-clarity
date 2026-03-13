@@ -7,7 +7,7 @@
     twikooRegion=${theme.config.post?.twikoo?.region ?: ''},
     twikooCustomUrl=${theme.config.post?.twikoo?.custom_js_url ?: '/themes/theme-clarity/assets/libs/twikoo/twikoo.min.js'},
     twikooLang=${theme.config.post?.twikoo?.lang ?: 'zh-CN'},
-    twikooPath=${'/halo/' + group + '/' + kind + '/' + name}
+    twikooPath=${theme.config.post?.twikoo?.path_type == 'pathname' ? window.location.pathname : '/halo/' + group + '/' + kind + '/' + name}
   "
 >
   <h3 th:if="${twikooEnabled or haloCommentEnabled}" class="comment-title">

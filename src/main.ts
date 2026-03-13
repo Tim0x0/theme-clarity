@@ -15,6 +15,7 @@ import { registerAlpineComponents } from "./alpine";
 import { initPjax } from "./pjax/pjax";
 import { registerPjaxHooks } from "./pjax/pjax-hooks";
 import { reinitializeComponents } from "./pjax/reinit";
+import { initImageLoaded, initImageCaption } from "./utils/image";
 
 // 注册全局函数
 window.mountPhotoGallery = mountPhotoGallery;
@@ -94,50 +95,6 @@ function initActiveNavItem() {
       if (parentSubmenu) {
         parentSubmenu.classList.add("expanded");
       }
-    }
-  });
-}
-
-function initImageLoaded() {
-  document.querySelectorAll("img").forEach((img) => {
-    if (img.complete) {
-      img.classList.add("loaded");
-    } else {
-      img.addEventListener("load", () => img.classList.add("loaded"));
-      img.addEventListener("error", () => img.classList.add("loaded"));
-    }
-  });
-}
-
-function initImageCaption() {
-  if (!window.themeConfig?.custom?.img_alt) return;
-
-  const article = document.querySelector(".article");
-  if (!article) return;
-
-  const images = article.querySelectorAll("img");
-  if (!images.length) return;
-
-  images.forEach((img) => {
-    const alt = img.alt?.trim();
-    if (!alt) return;
-
-    if (img.closest(".c-pic, [data-type='gallery']")) return;
-
-    const figure = img.closest("figure");
-    if (figure?.querySelector("figcaption")) return;
-
-    const caption = document.createElement("figcaption");
-    caption.textContent = alt;
-
-    if (figure) {
-      figure.classList.add("img-caption");
-      figure.appendChild(caption);
-    } else {
-      const wrapper = document.createElement("figure");
-      wrapper.className = "img-caption";
-      img.parentNode?.insertBefore(wrapper, img);
-      wrapper.append(img, caption);
     }
   });
 }
