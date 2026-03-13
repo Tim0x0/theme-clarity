@@ -1,6 +1,6 @@
 // 图片骨架屏基础样式
 // 排除 Fancybox 灯箱内的图片 以及 twikoo 的表情包，避免样式冲突
-img:not(.fancybox__image, .tk-owo-emotion) {
+img:not(.fancybox__image, .tk-owo-emotion, .OwO-items-image img) {
   // 骨架屏占位
   background: linear-gradient(
     90deg,
@@ -42,7 +42,7 @@ img:not(.fancybox__image, .tk-owo-emotion) {
 
 // 减少动画 - 尊重用户偏好
 @media (prefers-reduced-motion: reduce) {
-  img:not(.fancybox__image, .tk-owo-emotion) {
+  img:not(.fancybox__image, .tk-owo-emotion, .OwO-items-image img) {
     animation: none;
   }
 }
