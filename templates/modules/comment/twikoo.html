@@ -5,8 +5,7 @@
     twikooAccessToken=${theme.config.comment?.twikoo?.access_token ?: ''},
     twikooRegion=${theme.config.comment?.twikoo?.region ?: ''},
     twikooCustomUrl=${theme.config.comment?.twikoo?.custom_js_url ?: '/themes/theme-clarity/assets/libs/twikoo/twikoo.min.js'},
-    twikooLang=${theme.config.comment?.twikoo?.lang ?: 'zh-CN'},
-    twikooPath=${theme.config.comment?.twikoo?.path_type == 'pathname' ? window.location.pathname : window.location.pathname}
+    twikooLang=${theme.config.comment?.twikoo?.lang ?: 'zh-CN'}
   "
 >
   <section class="z-comment" id="comment">
@@ -18,8 +17,7 @@
         data-twikoo-access-token=${twikooAccessToken},
         data-twikoo-region=${twikooRegion},
         data-twikoo-custom-url=${twikooCustomUrl},
-        data-twikoo-lang=${twikooLang},
-        data-twikoo-path=${twikooPath}
+        data-twikoo-lang=${twikooLang}
       "
     ></div>
     <p th:if="${#strings.isEmpty(twikooEnvId)}" class="twikoo-config-tip">
