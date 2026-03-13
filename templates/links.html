@@ -21,8 +21,8 @@
       <div th:replace="~{modules/links/LinksSubmit-lywq/update-modal}"></div>
       <!-- 评论区 -->
       <th:block
-        th:replace="~{modules/common/comment :: comment(group='plugin.halo.run', kind='Plugin', name=${pluginName}, title='评论区')}"
-      />
+        th:replace="~{modules/common/comment :: comment(title='评论区', haloComment=${ {group: 'plugin.halo.run', kind: 'Plugin', name: pluginName} })}"
+      ></th:block>
     </div>
     <!-- 随机友链按钮 -->
     <div th:replace="~{modules/links/random-btn}"></div>

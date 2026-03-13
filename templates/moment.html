@@ -59,7 +59,7 @@
 
     <!-- 评论区 -->
     <th:block
-      th:replace="~{modules/common/comment :: comment(group='moment.halo.run', kind='Moment', name=${moment.metadata.name}, title='评论区')}"
-    />
+      th:replace="~{modules/common/comment :: comment(title='评论区', haloComment=${ {group: 'moment.halo.run', kind: 'Moment', name: moment.metadata.name} })}"
+    ></th:block>
   </th:block>
 </html>

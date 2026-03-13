@@ -215,6 +215,21 @@
       margin: 0.75rem 0;
       border-top: 1px solid var(--c-border);
     }
+
+    // 恢复标题样式，避免被全局 reset 影响
+    :where(h1, h2, h3, h4, h5, h6) {
+      margin: 1.2em 0 0.6em;
+      font-weight: 600;
+      color: var(--c-text);
+      line-height: 1.4;
+    }
+
+    h1 { font-size: 1.5em; }
+    h2 { font-size: 1.3em; }
+    h3 { font-size: 1.15em; }
+    h4 { font-size: 1.05em; }
+    h5 { font-size: 1em; }
+    h6 { font-size: 0.95em; color: var(--c-text-2); }
   }
 }
 

@@ -52,8 +52,8 @@
 
     <!-- TODO: 此处仅由基础的评论功能，其它功能等待后续官方的支持。 -->
     <th:block
-      th:replace="~{modules/common/comment :: comment(group='shop.halo.run', kind='shop', name=${product.id}, title='评论区')}"
-    />
+      th:replace="~{modules/common/comment :: comment(title='评论区', haloComment=${ {group: 'shop.halo.run', kind: 'shop', name: product.id} })}"
+    ></th:block>
 
     <th:block th:replace="~{shop/modules/style}" />
     <th:block th:replace="~{shop/modules/script}" />

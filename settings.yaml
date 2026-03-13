@@ -873,44 +873,60 @@ spec:
               help: 使用 {days} 作为实际天数的占位符
               if: "$get(outdated_enabled).value === true"
               validation: required
+        - $formkit: attachment
+          name: poster_default
+          label: 海报默认封面图
+          help: 默认封面图，用于文章无封面图时显示
+          accepts:
+            - "image/*"
+    - group: comment
+      label: 评论系统
+      formSchema:
+        - $formkit: select
+          name: provider
+          id: provider
+          label: 评论系统
+          value: halo
+          help: 选择要使用的评论系统
+          options:
+            - value: halo
+              label: Halo 原生评论
+            - value: twikoo
+              label: Twikoo 评论
         - $formkit: group
           name: twikoo
-          label: Twikoo 评论
+          id: twikoo
+          label: Twikoo 配置
+          if: "$get(provider).value === 'twikoo'"
           children:
-            - $formkit: switch
-              name: enabled
-              id: twikoo_enabled
-              label: 启用 Twikoo 评论
-              value: false
-              help: 开启后将自动隐藏 Halo 原生评论
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: env_id
+              id: env_id
               label: Twikoo 服务端地址（envId）
               placeholder: https://your-worker.workers.dev
               help: 必填，填写 Twikoo 服务端地址（支持 Workers / Vercel / 腾讯云）
               validation: required
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: access_token
+              id: access_token
               label: Access Token（可选）
               placeholder: 服务端开启鉴权时填写
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: region
+              id: region
               label: 腾讯云地域（可选）
               placeholder: 例如 ap-guangzhou
               help: 仅腾讯云环境需要填写
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: custom_js_url
+              id: custom_js_url
               label: Twikoo JS 地址
               value: /themes/theme-clarity/assets/libs/twikoo/twikoo.min.js
               placeholder: /themes/theme-clarity/assets/libs/twikoo/twikoo.min.js
               help: 自定义 Twikoo 脚本地址，留空则回退到主题默认内置地址
             - $formkit: select
-              if: "$get(twikoo_enabled).value === true"
               name: lang
+              id: lang
               label: 评论语言
               value: zh-CN
               options:
@@ -918,22 +934,6 @@ spec:
                   label: 简体中文
                 - value: en
                   label: English
-            - $formkit: select
-              if: "$get(twikoo_enabled).value === true"
-              name: path_type
-              label: 获取评论的路径
-              value: post_uuid
-              options:
-                - value: pathname
-                  label: 页面路由
-                - value: post_uuid
-                  label: 文章 UUID
-        - $formkit: attachment
-          name: poster_default
-          label: 海报默认封面图
-          help: 默认封面图，用于文章无封面图时显示
-          accepts:
-            - "image/*"
     - group: links
       label: 友链页面
       formSchema:
