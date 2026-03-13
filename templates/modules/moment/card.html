@@ -1,7 +1,7 @@
 <th:block th:fragment="content">
   <article
     th:each="moment,iterStat : ${moments.items}"
-    th:with="content=${moment.spec.content}, twikooEnabled=${theme.config.post?.twikoo?.enabled == true}"
+    th:with="content=${moment.spec.content}, twikooEnabled=${theme.config.comment?.provider == 'twikoo'}"
     class="moment-card"
     th:id="|moment-${moment.metadata.name}|"
     th:style="'--delay: ' + ${iterStat.index * 0.05} + 's'"
@@ -66,5 +66,17 @@
         ></th:block>
       </div>
     </footer>
+
+    <div
+      th:if="${haloCommentEnabled and !twikooEnabled}"
+      class="moment-comment"
+      th:id="|comment-${moment.metadata.name}|"
+    >
+      <div class="comment-header">
+        <span class="icon-[ph--chat-circle-text-bold]"></span>
+        <span>评论</span>
+      </div>
+      <halo:comment group="moment.halo.run" kind="Moment" th:attr="name=${moment.metadata.name}" />
+    </div>
   </article>
 </th:block>
