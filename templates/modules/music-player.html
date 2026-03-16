@@ -11,9 +11,7 @@
     <div class="capsule-body" @click="toggleExpand()">
       <div class="cover-wrapper">
         <img :src="currentSong?.cover" :alt="currentSong?.title" class="cover-img" :class="{ 'spinning': playing }" />
-        <div class="play-indicator" x-show="playing">
-          <span></span><span></span><span></span>
-        </div>
+        <div class="play-indicator" x-show="playing"><span></span><span></span><span></span></div>
       </div>
 
       <div class="song-info-mini">
@@ -83,7 +81,16 @@
             <span x-show="volume > 0 && volume <= 50" class="icon-[ph--speaker-low-fill]"></span>
             <span x-show="volume === 0" class="icon-[ph--speaker-x-fill]"></span>
           </button>
-          <div class="volume-slider" x-show="showSlider" x-transition>
+          <div
+            class="volume-slider"
+            x-show="showSlider"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+          >
             <input type="range" min="0" max="100" :value="volume" @input="setVolume($event.target.value)" />
           </div>
         </div>

@@ -428,7 +428,10 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
       border-radius: 0.5rem;
       background: color-mix(in srgb, var(--ld-bg-card), transparent 3%);
       box-shadow: 0 4px 12px var(--ld-shadow);
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateZ(0);
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
 
       input[type="range"] {
         appearance: none;
