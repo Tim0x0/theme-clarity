@@ -10,7 +10,7 @@
     :class="{ 'expanded': expanded, 'playing': playing, 'is-dragging': dragState.isDragging, 'is-ready': isReady }"
     :style="playerPosition.left !== null && playerPosition.top !== null ? `position: fixed; left: ${playerPosition.left}px; top: ${playerPosition.top}px; right: auto; bottom: auto;` : ''"
   >
-    <div class="drag-handle" @mousedown="onDragStart($event)" title="拖动移动位置">
+    <div class="drag-handle" @mousedown="onDragStart($event)" @touchstart="onDragStart($event)" title="拖动移动位置">
       <span class="icon-[ph--dots-six-vertical-bold]"></span>
     </div>
     <div class="capsule-body" @click="toggleExpand()">

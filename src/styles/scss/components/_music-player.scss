@@ -79,9 +79,17 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     opacity: 1;
   }
 
+  // 触摸设备上始终显示拖拽手柄
+  @media (hover: none) and (pointer: coarse) {
+    .drag-handle {
+      opacity: 1;
+    }
+  }
+
   &.is-dragging {
     cursor: grabbing;
     user-select: none;
+    touch-action: none;
     transition: none;
     box-shadow:
       0 20px 48px rgba(15, 23, 42, 0.25),

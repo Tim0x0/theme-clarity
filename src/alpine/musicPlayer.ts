@@ -90,9 +90,10 @@ interface MusicPlayerState {
   updateMediaSession(this: MusicPlayerState): void;
   restoreState(this: MusicPlayerState): Promise<boolean>;
   persistState(this: MusicPlayerState, force?: boolean): void;
-  onDragStart(this: MusicPlayerState, event: MouseEvent): void;
-  onDragMove(this: MusicPlayerState, event: MouseEvent): void;
+  onDragStart(this: MusicPlayerState, event: MouseEvent | TouchEvent): void;
+  onDragMove(this: MusicPlayerState, event: MouseEvent | TouchEvent): void;
   onDragEnd(this: MusicPlayerState): void;
+  getEventClientPos(this: MusicPlayerState, event: MouseEvent | TouchEvent): { clientX: number; clientY: number };
   savePlayerPosition(this: MusicPlayerState): void;
   restorePlayerPosition(this: MusicPlayerState): void;
   resetPlayerPosition(this: MusicPlayerState): void;
@@ -723,31 +724,48 @@ export function musicPlayer(): MusicPlayerState {
       this.lastPersistedAt = now;
     },
 
-    onDragStart(this: MusicPlayerState, event: MouseEvent) {
+    getEventClientPos(this: MusicPlayerState, event: MouseEvent | TouchEvent): { clientX: number; clientY: number } {
+      if ("touches" in event) {
+        const touch = event.touches[0] || event.changedTouches[0];
+        return { clientX: touch.clientX, clientY: touch.clientY };
+      }
+      return { clientX: (event as MouseEvent).clientX, clientY: (event as MouseEvent).clientY };
+    },
+
+    onDragStart(this: MusicPlayerState, event: MouseEvent | TouchEvent) {
       const player = this.$refs?.player;
       if (!player) return;
 
       event.preventDefault();
+      const pos = this.getEventClientPos(event);
       this.dragState.isDragging = true;
-      this.dragState.startX = event.clientX;
-      this.dragState.startY = event.clientY;
+      this.dragState.startX = pos.clientX;
+      this.dragState.startY = pos.clientY;
 
       const rect = player.getBoundingClientRect();
       this.dragState.initialLeft = rect.left;
       this.dragState.initialTop = rect.top;
 
-      document.addEventListener("mousemove", this.onDragMove.bind(this));
-      document.addEventListener("mouseup", this.onDragEnd.bind(this));
+      if ("touches" in event) {
+        document.addEventListener("touchmove", this.onDragMove.bind(this), { passive: false });
+        document.addEventListener("touchend", this.onDragEnd.bind(this));
+        document.addEventListener("touchcancel", this.onDragEnd.bind(this));
+      } else {
+        document.addEventListener("mousemove", this.onDragMove.bind(this));
+        document.addEventListener("mouseup", this.onDragEnd.bind(this));
+      }
     },
 
-    onDragMove(this: MusicPlayerState, event: MouseEvent) {
+    onDragMove(this: MusicPlayerState, event: MouseEvent | TouchEvent) {
       if (!this.dragState.isDragging) return;
 
       const player = this.$refs?.player;
       if (!player) return;
 
-      const deltaX = event.clientX - this.dragState.startX;
-      const deltaY = event.clientY - this.dragState.startY;
+      event.preventDefault();
+      const pos = this.getEventClientPos(event);
+      const deltaX = pos.clientX - this.dragState.startX;
+      const deltaY = pos.clientY - this.dragState.startY;
 
       let newLeft = this.dragState.initialLeft + deltaX;
       let newTop = this.dragState.initialTop + deltaY;
@@ -770,6 +788,9 @@ export function musicPlayer(): MusicPlayerState {
 
       document.removeEventListener("mousemove", this.onDragMove.bind(this));
       document.removeEventListener("mouseup", this.onDragEnd.bind(this));
+      document.removeEventListener("touchmove", this.onDragMove.bind(this));
+      document.removeEventListener("touchend", this.onDragEnd.bind(this));
+      document.removeEventListener("touchcancel", this.onDragEnd.bind(this));
     },
 
     savePlayerPosition(this: MusicPlayerState) {
