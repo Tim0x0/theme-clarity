@@ -1,0 +1,141 @@
+<th:block th:fragment="player">
+  <div
+    th:if="${theme.config.music?.enabled == true and theme.config.music?.id != null and !#strings.isEmpty(theme.config.music.id)}"
+    id="music-player"
+    class="music-capsule"
+    th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : ' is-right'"
+    x-data="musicPlayer()"
+    x-init="init()"
+    :class="{ 'expanded': expanded, 'playing': playing }"
+  >
+    <div class="capsule-body" @click="toggleExpand()">
+      <div class="cover-wrapper">
+        <img :src="currentSong?.cover" :alt="currentSong?.title" class="cover-img" :class="{ 'spinning': playing }" />
+        <div class="play-indicator" x-show="playing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="song-info-mini">
+        <div class="song-marquee">
+          <span x-text="(currentSong?.title || '未播放') + ' - ' + (currentSong?.artist || '无信息')"></span>
+        </div>
+      </div>
+
+      <span class="icon-[ph--caret-up-bold] expand-arrow text-sm opacity-50" x-show="expanded"></span>
+
+      <button class="quick-play-btn" @click.stop="togglePlay()">
+        <span :class="playing ? 'icon-[ph--pause-fill]' : 'icon-[ph--play-fill]'"></span>
+      </button>
+    </div>
+
+    <div class="expand-panel" x-show="expanded" x-collapse x-transition.opacity.duration.220ms>
+      <div class="song-detail">
+        <div class="song-title text-creative" x-text="currentSong?.title || '未知歌曲'"></div>
+        <div class="song-artist" x-text="currentSong?.artist || '未知歌手'"></div>
+      </div>
+
+      <div class="progress-wrapper">
+        <span class="time-current" x-text="formatTime(currentTime)"></span>
+        <div class="progress-bar" @click="seek($event)">
+          <div class="progress-bg"></div>
+          <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+          <div class="progress-thumb" :style="{ left: progress + '%' }"></div>
+        </div>
+        <span class="time-duration" x-text="formatTime(duration)"></span>
+      </div>
+
+      <div th:if="${theme.config.music.show_lrc != false}" class="lyrics-wrapper" x-show="lyrics.length > 0">
+        <div class="lyrics-scroll" :style="{ transform: `translateY(${lyricsOffset}px)` }">
+          <template x-for="(line, index) in lyrics" :key="index">
+            <p class="lyric-line" :class="{ 'active': index === currentLyricIndex }" x-text="line.text"></p>
+          </template>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="ctrl-btn" @click="toggleOrder()" :title="orderMode === 'list' ? '列表循环' : '随机播放'">
+          <span x-show="orderMode === 'list'" class="icon-[ph--repeat-bold]"></span>
+          <span x-show="orderMode === 'random'" class="icon-[ph--shuffle-bold]"></span>
+        </button>
+
+        <button class="ctrl-btn" @click="prev()" title="上一首">
+          <span class="icon-[ph--skip-back-fill]"></span>
+        </button>
+
+        <button class="ctrl-btn main" @click="togglePlay()" :title="playing ? '暂停' : '播放'">
+          <span x-show="!playing" class="icon-[ph--play-fill]"></span>
+          <span x-show="playing" class="icon-[ph--pause-fill]"></span>
+        </button>
+
+        <button class="ctrl-btn" @click="next()" title="下一首">
+          <span class="icon-[ph--skip-forward-fill]"></span>
+        </button>
+
+        <div class="volume-control" x-data="{ showSlider: false }">
+          <button
+            class="ctrl-btn"
+            @click="showSlider = !showSlider"
+            @click.outside="showSlider = false"
+            :title="'音量 ' + volume + '%'"
+          >
+            <span x-show="volume > 50" class="icon-[ph--speaker-high-fill]"></span>
+            <span x-show="volume > 0 && volume <= 50" class="icon-[ph--speaker-low-fill]"></span>
+            <span x-show="volume === 0" class="icon-[ph--speaker-x-fill]"></span>
+          </button>
+          <div class="volume-slider" x-show="showSlider" x-transition>
+            <input type="range" min="0" max="100" :value="volume" @input="setVolume($event.target.value)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="playlist-toggle">
+        <button @click="showPlaylist = !showPlaylist" class="playlist-btn">
+          <span class="icon-[ph--playlist-bold]"></span>
+          <span x-text="'播放列表 (' + playlist.length + ')'"></span>
+          <span class="icon-[ph--caret-down-bold]" :class="{ 'rotate': showPlaylist }"></span>
+        </button>
+      </div>
+
+      <div class="playlist-wrapper" x-show="showPlaylist" x-collapse x-transition.opacity.duration.180ms>
+        <div class="playlist-scroll">
+          <template x-for="(song, index) in playlist" :key="song.id || index">
+            <div class="playlist-item" :class="{ 'active': currentIndex === index }" @click="playSong(index)">
+              <span class="song-index" x-text="index + 1"></span>
+              <div class="song-meta">
+                <span class="song-name" x-text="song.title"></span>
+                <span class="song-artist" x-text="song.artist"></span>
+              </div>
+              <span x-show="currentIndex === index && playing" class="icon-[ph--speaker-high-fill] now-playing"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <audio
+      x-ref="audio"
+      :src="currentAudioUrl"
+      @timeupdate="onTimeUpdate()"
+      @ended="onEnded()"
+      @loadedmetadata="onLoaded()"
+      @error="onError()"
+      preload="metadata"
+    ></audio>
+  </div>
+
+  <script th:if="${theme.config.music?.enabled == true and theme.config.music?.id != null}" th:inline="javascript">
+    window.MUSIC_CONFIG = {
+      server: /*[[${theme.config.music.server}]]*/ "netease",
+      type: /*[[${theme.config.music.type}]]*/ "playlist",
+      id: /*[[${theme.config.music.id}]]*/ "",
+      api_url: /*[[${theme.config.music.api_url}]]*/ "",
+      custom_params: /*[[${theme.config.music.custom_params}]]*/ "",
+      order: /*[[${theme.config.music.order}]]*/ "list",
+      volume: /*[[${theme.config.music.volume}]]*/ 70,
+      position: /*[[${theme.config.music.position}]]*/ "right",
+      autoplay: /*[[${theme.config.music.autoplay}]]*/ false,
+      showLrc: /*[[${theme.config.music.show_lrc}]]*/ true,
+    };
+  </script>
+</th:block>

@@ -3,6 +3,19 @@ import type Alpine from "alpinejs";
 declare module "@alpinejs/collapse";
 
 declare global {
+  interface MusicConfig {
+    server: "netease" | "tencent" | "kugou";
+    type: "playlist" | "album" | "artist" | "song";
+    id: string;
+    api_url?: string;
+    custom_params?: string;
+    order?: "list" | "random";
+    position?: "right" | "left";
+    volume?: number;
+    autoplay?: boolean;
+    showLrc?: boolean;
+  }
+
   interface Window {
     Alpine: typeof Alpine;
     mountPhotoGallery: (container: HTMLElement, groups: unknown[]) => void;
@@ -11,6 +24,7 @@ declare global {
     generatePoster: (element: HTMLElement, title: string, defaultCover?: string) => Promise<void>;
     openShuttle: (options: ShuttleOptions) => void;
     goToPageNumber: (button: HTMLElement) => void;
+    MUSIC_CONFIG?: MusicConfig;
     themeConfig?: {
       custom?: {
         img_alt?: boolean;

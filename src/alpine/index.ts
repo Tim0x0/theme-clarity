@@ -4,6 +4,7 @@ import { registerUserAuth } from "./userAuth";
 import { registerSidebarControl } from "./sidebarControl";
 import { registerPostLike } from "./postLike";
 import { registerPagination } from "./pagination";
+import { registerMusicPlayer } from "./musicPlayer";
 
 export function registerAlpineComponents(alpine: typeof Alpine) {
   registerThemeToggle(alpine);
@@ -11,4 +12,5 @@ export function registerAlpineComponents(alpine: typeof Alpine) {
   registerSidebarControl(alpine);
   registerPostLike(alpine);
   registerPagination(alpine);
+  registerMusicPlayer(alpine);
 }
