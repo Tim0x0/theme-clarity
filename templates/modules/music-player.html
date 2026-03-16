@@ -6,8 +6,13 @@
     th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : ' is-right'"
     x-data="musicPlayer()"
     x-init="init()"
-    :class="{ 'expanded': expanded, 'playing': playing }"
+    x-ref="player"
+    :class="{ 'expanded': expanded, 'playing': playing, 'is-dragging': dragState.isDragging, 'is-ready': isReady }"
+    :style="playerPosition.left !== null && playerPosition.top !== null ? `position: fixed; left: ${playerPosition.left}px; top: ${playerPosition.top}px; right: auto; bottom: auto;` : ''"
   >
+    <div class="drag-handle" @mousedown="onDragStart($event)" title="拖动移动位置">
+      <span class="icon-[ph--dots-six-vertical-bold]"></span>
+    </div>
     <div class="capsule-body" @click="toggleExpand()">
       <div class="cover-wrapper">
         <img :src="currentSong?.cover" :alt="currentSong?.title" class="cover-img" :class="{ 'spinning': playing }" />
@@ -101,6 +106,9 @@
           <span class="icon-[ph--playlist-bold]"></span>
           <span x-text="'播放列表 (' + playlist.length + ')'"></span>
           <span class="icon-[ph--caret-down-bold]" :class="{ 'rotate': showPlaylist }"></span>
+        </button>
+        <button @click="resetPlayerPosition()" class="reset-position-btn" title="重置位置">
+          <span class="icon-[ph--arrows-out-cardinal-bold]"></span>
         </button>
       </div>
 
