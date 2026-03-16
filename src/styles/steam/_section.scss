@@ -7,6 +7,9 @@
 
 // 区块
 .steam-section {
+  &:not(:last-child) {
+    margin-bottom: $spacing-3xl;
+  }
 
   // 区块头部
   &__header {
