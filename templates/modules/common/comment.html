@@ -1,39 +1,21 @@
 <th:block
-  th:fragment="comment(group, kind, name, title)"
-  th:with="
-    twikooEnabled=${theme.config.post?.twikoo?.enabled == true},
-    twikooEnvId=${theme.config.post?.twikoo?.env_id ?: ''},
-    twikooAccessToken=${theme.config.post?.twikoo?.access_token ?: ''},
-    twikooRegion=${theme.config.post?.twikoo?.region ?: ''},
-    twikooCustomUrl=${theme.config.post?.twikoo?.custom_js_url ?: '/themes/theme-clarity/assets/libs/twikoo/twikoo.min.js'},
-    twikooLang=${theme.config.post?.twikoo?.lang ?: 'zh-CN'},
-    twikooPath=${theme.config.post?.twikoo?.path_type == 'pathname' ? window.location.pathname : '/halo/' + group + '/' + kind + '/' + name}
-  "
+  th:fragment="comment(title, haloComment)"
+  th:with="commentProvider=${theme.config.comment?.provider ?: 'halo'}"
 >
-  <h3 th:if="${twikooEnabled or haloCommentEnabled}" class="comment-title">
+  <h3 th:if="${haloCommentEnabled and commentProvider != 'none'}" class="comment-title">
     <span class="icon-[ph--chat-circle-text-bold]"></span>
     <span th:text="${title}"></span>
   </h3>
 
-  <section th:if="${twikooEnabled}" class="z-comment" id="comment">
-    <div
-      id="twikoo-comment"
-      data-twikoo-comment="true"
-      th:attr="
-        data-twikoo-env-id=${twikooEnvId},
-        data-twikoo-access-token=${twikooAccessToken},
-        data-twikoo-region=${twikooRegion},
-        data-twikoo-custom-url=${twikooCustomUrl},
-        data-twikoo-lang=${twikooLang},
-        data-twikoo-path=${twikooPath}
-      "
-    ></div>
-    <p th:if="${#strings.isEmpty(twikooEnvId)}" class="twikoo-config-tip">
-      Twikoo 已启用，但未配置服务端地址（envId），请在主题设置中补充。
-    </p>
-  </section>
-
-  <section th:if="${!twikooEnabled and haloCommentEnabled}" class="z-comment" id="comment">
-    <halo:comment th:attr="group=${group}, kind=${kind}, name=${name}" />
-  </section>
+  <th:block th:switch="${commentProvider}">
+    <th:block th:case="'twikoo'">
+      <th:block th:replace="~{modules/comment/twikoo :: twikoo}"></th:block>
+    </th:block>
+    <th:block th:case="'halo'">
+      <th:block
+        th:if="${haloCommentEnabled and haloComment != null}"
+        th:replace="~{modules/comment/halo :: halo(group=${haloComment.group}, kind=${haloComment.kind}, name=${haloComment.name})}"
+      ></th:block>
+    </th:block>
+  </th:block>
 </th:block>

@@ -7,8 +7,10 @@
   <th:block
     th:with="sideCountStr=${theme.config.custom.page_side_count},
                      sideCount=${sideCountStr != null ? T(java.lang.Integer).parseInt(sideCountStr) : 5},
-                     showStartEllipsis=${data.page > sideCount + 1},
-                     showEndEllipsis=${data.page < data.totalPages - sideCount}"
+                     showFirstPage=${data.page - sideCount > 1},
+                     showStartEllipsis=${data.page - sideCount > 2},
+                     showLastPage=${data.page + sideCount < data.totalPages},
+                     showEndEllipsis=${data.page + sideCount < data.totalPages - 1}"
   >
     <nav
       class="pagination-wrapper sticky-pagination"
@@ -36,7 +38,7 @@
 
       <!-- 首页按钮 -->
       <button
-        th:if="${showStartEllipsis}"
+        th:if="${showFirstPage}"
         class="pagination-num"
         type="button"
         data-page="1"
@@ -55,7 +57,7 @@
                            targetPage=${data.page + pageOffset}"
         >
           <button
-            th:if="${targetPage >= 1 && targetPage <= data.totalPages && !(showStartEllipsis && targetPage <= 1) && !(showEndEllipsis && targetPage >= data.totalPages)}"
+            th:if="${targetPage >= 1 && targetPage <= data.totalPages && !(showFirstPage && targetPage <= 1) && !(showLastPage && targetPage >= data.totalPages)}"
             th:class="${targetPage == data.page} ? 'pagination-num active' : 'pagination-num'"
             type="button"
             th:attr="data-page=${targetPage}, aria-label=|第${targetPage}页|"
@@ -70,7 +72,7 @@
       <button th:if="${showEndEllipsis}" class="pagination-num pagination-ellipsis" type="button" disabled>…</button>
       <!-- 尾页按钮 -->
       <button
-        th:if="${showEndEllipsis}"
+        th:if="${showLastPage}"
         class="pagination-num"
         type="button"
         th:attr="data-page=${data.totalPages}, aria-label=|第${data.totalPages}页|"

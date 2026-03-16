@@ -22,8 +22,8 @@
     />
     <!-- 评论区 -->
     <th:block
-      th:replace="~{modules/common/comment :: comment(group='content.halo.run', kind='Post', name=${post.metadata.name}, title='评论区')}"
-    />
+      th:replace="~{modules/common/comment :: comment(title='评论区', haloComment=${ {group: 'content.halo.run', kind: 'Post', name: post.metadata.name} })}"
+    ></th:block>
     <!-- 编辑文章按钮 -->
     <button
       id="edit-post-btn"

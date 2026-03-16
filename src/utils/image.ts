@@ -24,9 +24,10 @@ export const initImageCaption = () => {
 
     if (img.closest(".c-pic, [data-type='gallery']")) return;
 
-    const blacklist = window.themeConfig?.style?.caption_blacklist || [];
+    const blacklist = window.themeConfig?.custom?.caption_blacklist || [];
     const isBlacklisted = blacklist.some((item) => {
-      img.classList.contains(item?.realNode?.class_name);
+      const className = item?.class_name || item?.realNode?.class_name;
+      return className && img.classList.contains(className);
     });
     if (isBlacklisted) return;
 

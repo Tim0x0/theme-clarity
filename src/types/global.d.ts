@@ -30,10 +30,10 @@ declare global {
         img_alt?: boolean;
         enable_fancybox?: boolean;
         enable_pjax?: boolean;
+        caption_blacklist?: Array<{ class_name?: string; realNode?: { class_name?: string } }>;
       };
       style?: {
         theme_mode?: "light" | "dark" | "system";
-        caption_blacklist?: Array<{ realNode: { class_name: string } }>;
       };
     };
     reinitializeComponents?: () => void;

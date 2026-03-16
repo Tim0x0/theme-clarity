@@ -203,16 +203,6 @@ spec:
               label: 深色模式
             - value: system
               label: 跟随系统
-        - $formkit: array
-          name: caption_blacklist
-          label: 图片标题自动添加屏蔽列表
-          value: []
-          help: "添加需要屏蔽的图片标签类名，使主题在给图片添加 figcaption 时自动排除这些图片，避免与某些插件或表情包的样式冲突。"
-          children:
-            - $formkit: text
-              name: class_name
-              label: 需要屏蔽的图片标签类名
-              validation: required
 
     - group: footer
       label: 页脚 & 社交
@@ -983,44 +973,60 @@ spec:
               help: 使用 {days} 作为实际天数的占位符
               if: "$get(outdated_enabled).value === true"
               validation: required
+        - $formkit: attachment
+          name: poster_default
+          label: 海报默认封面图
+          help: 默认封面图，用于文章无封面图时显示
+          accepts:
+            - "image/*"
+    - group: comment
+      label: 评论系统
+      formSchema:
+        - $formkit: select
+          name: provider
+          id: provider
+          label: 评论系统
+          value: halo
+          help: 选择要使用的评论系统
+          options:
+            - value: halo
+              label: Halo 原生评论
+            - value: twikoo
+              label: Twikoo 评论
         - $formkit: group
           name: twikoo
-          label: Twikoo 评论
+          id: twikoo
+          label: Twikoo 配置
+          if: "$get(provider).value === 'twikoo'"
           children:
-            - $formkit: switch
-              name: enabled
-              id: twikoo_enabled
-              label: 启用 Twikoo 评论
-              value: false
-              help: 开启后将自动隐藏 Halo 原生评论
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: env_id
+              id: env_id
               label: Twikoo 服务端地址（envId）
               placeholder: https://your-worker.workers.dev
               help: 必填，填写 Twikoo 服务端地址（支持 Workers / Vercel / 腾讯云）
               validation: required
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: access_token
+              id: access_token
               label: Access Token（可选）
               placeholder: 服务端开启鉴权时填写
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: region
+              id: region
               label: 腾讯云地域（可选）
               placeholder: 例如 ap-guangzhou
               help: 仅腾讯云环境需要填写
             - $formkit: text
-              if: "$get(twikoo_enabled).value === true"
               name: custom_js_url
+              id: custom_js_url
               label: Twikoo JS 地址
               value: /themes/theme-clarity/assets/libs/twikoo/twikoo.min.js
               placeholder: /themes/theme-clarity/assets/libs/twikoo/twikoo.min.js
               help: 自定义 Twikoo 脚本地址，留空则回退到主题默认内置地址
             - $formkit: select
-              if: "$get(twikoo_enabled).value === true"
               name: lang
+              id: lang
               label: 评论语言
               value: zh-CN
               options:
@@ -1028,22 +1034,6 @@ spec:
                   label: 简体中文
                 - value: en
                   label: English
-            - $formkit: select
-              if: "$get(twikoo_enabled).value === true"
-              name: path_type
-              label: 获取评论的路径
-              value: post_uuid
-              options:
-                - value: pathname
-                  label: 页面路由
-                - value: post_uuid
-                  label: 文章 UUID
-        - $formkit: attachment
-          name: poster_default
-          label: 海报默认封面图
-          help: 默认封面图，用于文章无封面图时显示
-          accepts:
-            - "image/*"
     - group: links
       label: 友链页面
       formSchema:
@@ -1205,16 +1195,36 @@ spec:
               label: 横线（页面 - 网站）
         - $formkit: switch
           name: img_alt
+          id: img_alt
+          key: img_alt
           label: 启用图片 alt 文本
           value: true
           help: 开启后图片将显示 alt 文本
+        - $formkit: array
+          if: "$get(img_alt).value === true"
+          name: caption_blacklist
+          id: caption_blacklist
+          key: caption_blacklist
+          label: alt 文本屏蔽列表
+          value: []
+          help: "添加需要屏蔽的图片 alt 文本类名，使主题在给图片添加 alt 文本时自动跳过此类名下的图片。"
+          children:
+            - $formkit: text
+              name: class_name
+              label: 需要屏蔽的图片 alt 文本类名
+              placeholder: class_name
+              validation: required
         - $formkit: switch
           name: enable_post_toc
+          id: enable_post_toc
+          key: enable_post_toc
           label: 启用文章目录
           value: true
           help: 开启后文章页面将显示目录
         - $formkit: switch
           name: enable_page_toc
+          id: enable_page_toc
+          key: enable_page_toc
           label: 启用独立页面目录
           value: false
           help: 开启后需要在页面设置中启用目录功能独立页面才会显示目录
@@ -1222,6 +1232,8 @@ spec:
           onValue: true
           offValue: false
           name: enable_edit
+          id: enable_edit
+          key: enable_edit
           label: 启用编辑按钮
           value: false
           help: 开启后文章/页面将显示编辑按钮
@@ -1229,12 +1241,15 @@ spec:
           onValue: true
           offValue: false
           name: enable_page_jump
+          id: enable_page_jump
+          key: enable_page_jump
           label: 启用分页跳转
           value: false
           help: 开启后分页将显示跳转功能
         - $formkit: number
           name: page_side_count
           id: page_side_count
+          key: page_side_count
           label: 当前页两边显示数量（不包含首尾）
           value: 2
           min: 2
@@ -1243,12 +1258,15 @@ spec:
         - $formkit: switch
           name: archives_years
           id: archives_years
+          key: archives_years
           label: 切换年龄来源
           value: true
           help: 开启后，年龄来源为建站时间，关闭后，年龄来源为网站拥有者的生日
         - $formkit: date
           if: "$get(archives_years).value === false"
           name: owner_birthday
+          id: owner_birthday
+          key: owner_birthday
           label: 你的生日
           value: "2001-01-01"
           help: 用于计算你的年龄
@@ -1256,6 +1274,8 @@ spec:
           onValue: true
           offValue: false
           name: enable_fancybox
+          id: enable_fancybox
+          key: enable_fancybox
           label: 关闭 FancyBox
           value: false
           help: 如果使用了其它灯箱插件，可以关闭 FancyBox 灯箱，避免重复加载
@@ -1263,11 +1283,15 @@ spec:
           onValue: true
           offValue: false
           name: enable_pjax
+          id: enable_pjax
+          key: enable_pjax
           label: 启用 PJAX
           value: false
           help: 开启后页面切换将使用 PJAX 技术，提升用户体验。注意：某些插件可能不兼容 PJAX ，使用 PJAX 需要舍弃一些功能。
         - $formkit: array
           name: preconnect_urls
+          id: preconnect_urls
+          key: preconnect_urls
           label: 预连接域名
           value: []
           help: "添加第三方服务域名以提前建立连接，提升加载速度（如统计服务、CDN 等）"

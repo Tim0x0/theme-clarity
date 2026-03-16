@@ -1,0 +1,27 @@
+<th:block
+  th:fragment="twikoo"
+  th:with="
+    twikooEnvId=${theme.config.comment?.twikoo?.env_id ?: ''},
+    twikooAccessToken=${theme.config.comment?.twikoo?.access_token ?: ''},
+    twikooRegion=${theme.config.comment?.twikoo?.region ?: ''},
+    twikooCustomUrl=${theme.config.comment?.twikoo?.custom_js_url ?: '/themes/theme-clarity/assets/libs/twikoo/twikoo.min.js'},
+    twikooLang=${theme.config.comment?.twikoo?.lang ?: 'zh-CN'}
+  "
+>
+  <section class="z-comment" id="comment">
+    <div
+      id="twikoo-comment"
+      data-twikoo-comment="true"
+      th:attr="
+        data-twikoo-env-id=${twikooEnvId},
+        data-twikoo-access-token=${twikooAccessToken},
+        data-twikoo-region=${twikooRegion},
+        data-twikoo-custom-url=${twikooCustomUrl},
+        data-twikoo-lang=${twikooLang}
+      "
+    ></div>
+    <p th:if="${#strings.isEmpty(twikooEnvId)}" class="twikoo-config-tip">
+      Twikoo 已启用，但未配置服务端地址（envId），请在主题设置中补充。
+    </p>
+  </section>
+</th:block>

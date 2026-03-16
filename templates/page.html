@@ -49,8 +49,8 @@
     <article class="article" th:utext="${singlePage.content.content}"></article>
 
     <th:block
-      th:replace="~{modules/common/comment :: comment(group='content.halo.run', kind='SinglePage', name=${singlePage.metadata.name}, title='评论区')}"
-    />
+      th:replace="~{modules/common/comment :: comment(title='评论区', haloComment=${ {group: 'content.halo.run', kind: 'SinglePage', name: singlePage.metadata.name} })}"
+    ></th:block>
     <button
       id="edit-page-btn"
       class="edit-page-btn"
