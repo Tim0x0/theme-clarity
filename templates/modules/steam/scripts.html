@@ -1,0 +1,229 @@
+<th:block th:fragment="scripts">
+  <script>
+    document.querySelectorAll(".steam-badge[data-hue]").forEach((badge) => {
+      const img = badge.querySelector(".steam-badge__img");
+      if (img) return;
+      const hue = badge.dataset.hue;
+      badge.style.background = `linear-gradient(135deg, hsl(${hue}, 60%, 45%) 0%, hsl(${hue}, 60%, 30%) 100%)`;
+      badge.style.borderColor = `hsl(${hue}, 60%, 45%)`;
+    });
+  </script>
+
+  <script th:if="${showHeatmap}" th:inline="javascript">
+    const heatmapConfig = {
+      days: /*[[${heatmapDays}]]*/ 365,
+      colorTheme: /*[[${heatmapColorTheme}]]*/ "steam",
+      showLegend: /*[[${heatmapShowLegend}]]*/ true,
+    };
+
+    const colorThemes = {
+      steam: {
+        empty: "var(--c-bg)",
+        colors: ["#1e3a5f", "#2a5a8f", "#4a7ba7", "var(--c-primary)", "#8ed1f7"],
+      },
+      github: {
+        empty: "var(--c-bg)",
+        colors: ["#0e4429", "#006d32", "#26a641", "#39d353", "#7ee787"],
+      },
+      fire: {
+        empty: "var(--c-bg)",
+        colors: ["#662200", "#994400", "#cc5500", "#ff6600", "#ff9933"],
+      },
+      purple: {
+        empty: "var(--c-bg)",
+        colors: ["#3d2c5e", "#5a3d8f", "#6247aa", "#8b5cf6", "#a78bfa"],
+      },
+    };
+
+    function loadECharts() {
+      return new Promise((resolve, reject) => {
+        if (window.echarts) {
+          resolve(window.echarts);
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = "https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js";
+        script.onload = () => resolve(window.echarts);
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    async function fetchHeatmapData() {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - heatmapConfig.days);
+
+      const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const url = `/apis/api.steam.timxs.com/v1alpha1/heatmap/records?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&page=1&size=${heatmapConfig.days}`;
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch heatmap data");
+      }
+      return await response.json();
+    }
+
+    function processHeatmapData(data) {
+      const dateMap = new Map();
+
+      if (data.items && data.items.length > 0) {
+        data.items.forEach((record) => {
+          const date = record.spec.date;
+          const minutes = record.spec.playtimeMinutes || 0;
+          dateMap.set(date, (dateMap.get(date) || 0) + minutes);
+        });
+      }
+
+      const result = [];
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - heatmapConfig.days);
+
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split("T")[0];
+        const minutes = dateMap.get(dateStr) || 0;
+        const hours = (minutes / 60).toFixed(1);
+        result.push([dateStr, minutes, hours]);
+      }
+
+      return result;
+    }
+
+    async function renderHeatmap() {
+      const loadingEl = document.getElementById("heatmap-loading");
+      const emptyEl = document.getElementById("heatmap-empty");
+      const errorEl = document.getElementById("heatmap-error");
+      const chartEl = document.getElementById("heatmap-chart");
+
+      try {
+        const echarts = await loadECharts();
+        const data = await fetchHeatmapData();
+        const chartData = processHeatmapData(data);
+
+        loadingEl.style.display = "none";
+        chartEl.style.display = "block";
+
+        const chart = echarts.init(chartEl);
+        const theme = colorThemes[heatmapConfig.colorTheme] || colorThemes.steam;
+        const colors = theme.colors;
+        const emptyColor = theme.empty;
+
+        const maxMinutes = Math.max(...chartData.map((item) => item[1]), 1);
+        const step = maxMinutes / 5;
+        const pieces = [
+          { min: 0, max: 0, color: emptyColor },
+          { gt: 0, lte: step, color: colors[0] },
+          { gt: step, lte: step * 2, color: colors[1] },
+          { gt: step * 2, lte: step * 3, color: colors[2] },
+          { gt: step * 3, lte: step * 4, color: colors[3] },
+          { gt: step * 4, color: colors[4] },
+        ];
+
+        const isDark = document.documentElement.classList.contains("dark");
+        const textColor = isDark ? "#c7d5e0" : "#333";
+        const subTextColor = isDark ? "#8f98a0" : "#666";
+
+        const option = {
+          tooltip: {
+            position: "top",
+            formatter: function (params) {
+              const date = params.data[0];
+              const hours = params.data[2];
+              return `${date}<br/>游戏时长: ${hours} 小时`;
+            },
+            backgroundColor: isDark ? "rgba(27, 40, 56, 0.95)" : "rgba(255, 255, 255, 0.95)",
+            borderColor: isDark ? "#2a475e" : "#e5e7eb",
+            textStyle: { color: textColor },
+          },
+          visualMap: heatmapConfig.showLegend
+            ? {
+                show: true,
+                type: "piecewise",
+                pieces: pieces,
+                orient: "horizontal",
+                left: "center",
+                bottom: "0",
+                text: ["高", "低"],
+                textStyle: { color: subTextColor },
+                itemWidth: 10,
+                itemHeight: 10,
+              }
+            : {
+                show: false,
+                type: "piecewise",
+                pieces: pieces,
+              },
+          calendar: {
+            top: 20,
+            left: 30,
+            right: 30,
+            bottom: heatmapConfig.showLegend ? 40 : 20,
+            range: [chartData[0][0], chartData[chartData.length - 1][0]],
+            cellSize: ["auto", 13],
+            splitLine: { show: false },
+            itemStyle: {
+              borderColor: "transparent",
+              borderWidth: 0,
+            },
+            yearLabel: { show: true, color: textColor },
+            monthLabel: { show: true, color: subTextColor, nameMap: "ZH" },
+            dayLabel: { show: true, color: subTextColor, nameMap: "ZH", firstDay: 1 },
+          },
+          series: [
+            {
+              type: "heatmap",
+              coordinateSystem: "calendar",
+              data: chartData,
+              itemStyle: {
+                borderColor: isDark ? "#1b2838" : "#f3f4f6",
+                borderWidth: 2,
+                borderRadius: 2,
+              },
+            },
+          ],
+        };
+
+        chart.setOption(option);
+
+        const legendEl = document.getElementById("heatmap-legend");
+        const legendColorsEl = document.getElementById("heatmap-legend-colors");
+        legendColorsEl.innerHTML = "";
+
+        const emptyBlock = document.createElement("div");
+        emptyBlock.className = "steam-heatmap__legend-color";
+        emptyBlock.style.backgroundColor = emptyColor;
+        legendColorsEl.appendChild(emptyBlock);
+
+        colors.forEach((color) => {
+          const colorBlock = document.createElement("div");
+          colorBlock.className = "steam-heatmap__legend-color";
+          colorBlock.style.backgroundColor = color;
+          legendColorsEl.appendChild(colorBlock);
+        });
+
+        legendEl.style.display = "flex";
+
+        window.addEventListener("resize", () => {
+          chart.resize();
+        });
+      } catch (error) {
+        console.error("Failed to render heatmap:", error);
+        loadingEl.style.display = "none";
+        errorEl.style.display = "flex";
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", renderHeatmap);
+    } else {
+      renderHeatmap();
+    }
+  </script>
+</th:block>

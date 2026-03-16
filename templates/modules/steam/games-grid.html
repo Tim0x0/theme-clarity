@@ -1,0 +1,68 @@
+<th:block th:fragment="games-grid">
+  <section class="steam-section">
+    <div class="steam-section__header">
+      <h2 class="steam-section__title">
+        <span class="icon-[ph--stack-bold]"></span>
+        游戏库
+      </h2>
+      <span
+        class="steam-section__subtitle"
+        th:if="${gamesLimit != null and gamesLimit gt 0}"
+        th:text="'显示游玩时长最多的 ' + ${gamesLimit} + ' 款游戏'"
+      ></span>
+      <span class="steam-section__subtitle" th:unless="${gamesLimit != null and gamesLimit gt 0}"
+        >全部游戏 · 按游玩时长排序</span
+      >
+    </div>
+    <th:block th:if="${games != null}">
+      <div class="steam-games-grid" th:if="${!games.items.isEmpty()}">
+        <div class="steam-game-card" th:each="game : ${games.items}">
+          <a
+            th:if="${enableGameLink}"
+            th:href="'https://store.steampowered.com/app/' + ${game.appId}"
+            target="_blank"
+            class="steam-game-card__link"
+          >
+            <img class="steam-game-card__img" th:src="${game.headerImageUrl}" th:alt="${game.name}" loading="lazy" />
+            <div class="steam-game-card__info">
+              <div class="steam-game-card__name" th:text="${game.name}">Game</div>
+              <div class="steam-game-card__meta">
+                <span class="steam-game-card__time" th:text="${game.playtimeFormatted}">0h</span>
+                <span
+                  class="steam-game-card__last-played"
+                  th:if="${game.lastPlayedFormatted}"
+                  th:text="${game.lastPlayedFormatted}"
+                ></span>
+              </div>
+            </div>
+          </a>
+          <div th:unless="${enableGameLink}" class="steam-game-card__link">
+            <img class="steam-game-card__img" th:src="${game.headerImageUrl}" th:alt="${game.name}" loading="lazy" />
+            <div class="steam-game-card__info">
+              <div class="steam-game-card__name" th:text="${game.name}">Game</div>
+              <div class="steam-game-card__meta">
+                <span class="steam-game-card__time" th:text="${game.playtimeFormatted}">0h</span>
+                <span
+                  class="steam-game-card__last-played"
+                  th:if="${game.lastPlayedFormatted}"
+                  th:text="${game.lastPlayedFormatted}"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="steam-empty" th:if="${games.items.isEmpty()}">
+        <div class="steam-empty__icon">🎮</div>
+        <div class="steam-empty__title">暂无游戏数据</div>
+        <div class="steam-empty__desc">游戏库为空，请检查 Steam 账号设置</div>
+      </div>
+      <th:block th:replace="~{modules/pagination :: pagination(data=${games})}" />
+    </th:block>
+    <div class="steam-empty" th:if="${games == null}">
+      <div class="steam-empty__icon">⚠️</div>
+      <div class="steam-empty__title">游戏库加载失败</div>
+      <div class="steam-empty__desc">Steam 服务器连接超时，请稍后刷新重试</div>
+    </div>
+  </section>
+</th:block>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html
+  xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{modules/layout :: html(content = ~{::content}, showAside = false, pageTitle = 'Steam', head = ~{::head})}"
+>
+  <th:block th:fragment="head">
+    <th:block th:replace="~{modules/head :: steam-head}"></th:block>
+  </th:block>
+
+  <th:block th:fragment="content">
+    <div class="steam-page">
+      <div class="steam-header">
+        <div class="steam-title">
+          <span class="icon-[ph--game-controller-bold]"></span>
+          <h1 class="text-creative">Steam 游戏库</h1>
+        </div>
+      </div>
+
+      <th:block
+        th:with="profile=${steamFinder.getProfile()}, recentGames=${steamFinder.getRecentGames(recentGamesLimit)}, stats=${steamFinder.getStats()}, badges=${steamFinder.getBadges()}"
+      >
+        <th:block th:replace="~{modules/steam/error :: error}"></th:block>
+        <th:block th:replace="~{modules/steam/profile :: profile}"></th:block>
+        <th:block th:replace="~{modules/steam/stats :: stats}"></th:block>
+        <th:block th:replace="~{modules/steam/heatmap :: heatmap}"></th:block>
+        <th:block th:replace="~{modules/steam/recent-games :: recent-games}"></th:block>
+      </th:block>
+
+      <th:block th:replace="~{modules/steam/games-grid :: games-grid}"></th:block>
+    </div>
+
+    <th:block th:replace="~{modules/steam/scripts :: scripts}"></th:block>
+  </th:block>
+</html>
