@@ -16,6 +16,14 @@ import { initPjax } from "./pjax/pjax";
 import { registerPjaxHooks } from "./pjax/pjax-hooks";
 import { reinitializeComponents } from "./pjax/reinit";
 import { initImageLoaded, initImageCaption } from "./utils/image";
+import {
+  initDropdownMenus,
+  initBackToTop,
+  initMomentsTags,
+  initFloatingPagination,
+  initActiveNavItem,
+  initSearchShortcut,
+} from "./modules";
 
 // 注册全局函数
 window.mountPhotoGallery = mountPhotoGallery;
@@ -31,15 +39,8 @@ Alpine.plugin(collapse);
 window.Alpine = Alpine;
 Alpine.start();
 
-// 搜索快捷键 Ctrl+K / Cmd+K
-document.addEventListener("keydown", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-    e.preventDefault();
-    if (typeof SearchWidget !== "undefined") {
-      SearchWidget.open();
-    }
-  }
-});
+// 初始化搜索快捷键
+initSearchShortcut();
 
 // 页面初始加载
 document.addEventListener("DOMContentLoaded", () => {
@@ -57,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initImageLoaded();
   initImageCaption();
   initActiveNavItem();
-  moments_tags();
+  initMomentsTags();
   initActivityCalendar();
   void initTwikooComments();
   initFloatingPagination();
@@ -68,269 +69,3 @@ window.addEventListener("pjax:success", () => {
     initFloatingPagination();
   }, 0);
 });
-
-// 侧边栏菜单激活状态
-function initActiveNavItem() {
-  // 检查是否启用
-  if (document.documentElement.dataset.navActive === "false") return;
-
-  const currentPath = window.location.pathname;
-  const navItems = document.querySelectorAll(".sidebar-nav-item, .dropdown-item");
-
-  navItems.forEach((item) => {
-    const link = item as HTMLAnchorElement;
-    const href = link.getAttribute("href");
-    if (!href || href === "#") return;
-
-    // 精确匹配或路径前缀匹配
-    const isActive =
-      currentPath === href ||
-      (href !== "/" && currentPath.startsWith(href)) ||
-      (href === "/" && (currentPath === "/" || currentPath.startsWith("/page/")));
-
-    if (isActive) {
-      link.classList.add("active");
-      // 如果是子菜单项，展开父菜单
-      const parentSubmenu = link.closest(".has-submenu");
-      if (parentSubmenu) {
-        parentSubmenu.classList.add("expanded");
-      }
-    }
-  });
-}
-
-function initDropdownMenus() {
-  // 使用事件委托处理下拉菜单点击
-  document.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-    const toggleBtn = target.closest(".dropdown-toggle");
-
-    if (toggleBtn) {
-      const parent = toggleBtn.closest(".has-submenu");
-      if (parent) {
-        e.preventDefault();
-        e.stopPropagation();
-        parent.classList.toggle("expanded");
-      }
-      return;
-    }
-  });
-}
-
-function initBackToTop() {
-  const mobileBtn = document.getElementById("back-to-top") as HTMLButtonElement | null;
-  const pcBtn = document.getElementById("pc-back-to-top") as HTMLButtonElement | null;
-
-  if (!mobileBtn && !pcBtn) return;
-
-  if ((mobileBtn as HTMLButtonElement & { _inited?: boolean })?._inited) return;
-  if (mobileBtn) (mobileBtn as HTMLButtonElement & { _inited?: boolean })._inited = true;
-
-  const updateVisibility = () => {
-    const y = window.scrollY || document.documentElement.scrollTop || 0;
-    const showMobile = y > 300;
-
-    if (mobileBtn) mobileBtn.style.display = showMobile ? "" : "none";
-
-    if (pcBtn) {
-      if (showMobile) {
-        pcBtn.classList.add("show");
-      } else {
-        pcBtn.classList.remove("show");
-      }
-    }
-  };
-
-  updateVisibility();
-  window.addEventListener("scroll", updateVisibility, { passive: true });
-
-  if (mobileBtn) {
-    let pressTimer: number | null = null;
-    let longPressed = false;
-    const pressDuration = 600;
-
-    const onPointerDown = () => {
-      longPressed = false;
-      pressTimer = window.setTimeout(() => {
-        longPressed = true;
-        if (history.length > 1) {
-          history.back();
-        } else {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-      }, pressDuration);
-    };
-
-    const clearTimer = () => {
-      if (pressTimer !== null) {
-        clearTimeout(pressTimer);
-        pressTimer = null;
-      }
-    };
-
-    mobileBtn.addEventListener("mousedown", onPointerDown);
-    mobileBtn.addEventListener("touchstart", onPointerDown);
-    mobileBtn.addEventListener("mouseup", clearTimer);
-    mobileBtn.addEventListener("mouseleave", clearTimer);
-    mobileBtn.addEventListener("touchend", clearTimer);
-
-    mobileBtn.addEventListener("click", () => {
-      if (!longPressed) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
-  }
-}
-
-function moments_tags() {
-  const scrollContainers = document.querySelectorAll<HTMLElement>(".scrollcheck-x");
-
-  scrollContainers.forEach((container) => {
-    const wrapper = container.closest<HTMLElement>(".moments-tags-wrapper");
-    const hoverHint = wrapper?.querySelector<HTMLElement>(".at-slide-hover");
-
-    const checkScrollable = () => {
-      const isScrollable = container.scrollWidth > container.clientWidth;
-      if (hoverHint) {
-        if (isScrollable) {
-          hoverHint.style.display = "inline-flex";
-        } else {
-          hoverHint.style.display = "none";
-        }
-      }
-    };
-
-    const scrollToActiveTag = () => {
-      const activeTag = container.querySelector<HTMLElement>(".tag-item.active");
-      if (!activeTag) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const tagRect = activeTag.getBoundingClientRect();
-
-      if (tagRect.right > containerRect.right) {
-        const scrollAmount = tagRect.right - containerRect.right;
-        container.scrollLeft += scrollAmount + 20;
-      } else if (tagRect.left < containerRect.left) {
-        const scrollAmount = containerRect.left - tagRect.left;
-        container.scrollLeft -= scrollAmount + 20;
-      }
-    };
-
-    container.addEventListener(
-      "wheel",
-      (e) => {
-        if (e.deltaY !== 0) {
-          e.preventDefault();
-          container.scrollLeft += e.deltaY;
-        }
-      },
-      { passive: false },
-    );
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    container.addEventListener(
-      "touchstart",
-      (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      },
-      { passive: true },
-    );
-
-    container.addEventListener(
-      "touchmove",
-      (e) => {
-        const touchCurrentX = e.touches[0].clientX;
-        const touchCurrentY = e.touches[0].clientY;
-        const diffX = touchStartX - touchCurrentX;
-        const diffY = touchStartY - touchCurrentY;
-
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-          e.preventDefault();
-          container.scrollLeft += diffX;
-          touchStartX = touchCurrentX;
-          touchStartY = touchCurrentY;
-        }
-      },
-      { passive: false },
-    );
-
-    checkScrollable();
-    scrollToActiveTag();
-    window.addEventListener("resize", checkScrollable);
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "attributes" && mutation.attributeName === "class") {
-          const target = mutation.target as HTMLElement;
-          if (target.classList.contains("tag-item") && target.classList.contains("active")) {
-            setTimeout(() => scrollToActiveTag(), 100);
-          }
-        }
-      });
-    });
-
-    container.querySelectorAll<HTMLElement>(".tag-item").forEach((tag) => {
-      observer.observe(tag, { attributes: true, attributeFilter: ["class"] });
-    });
-  });
-}
-
-let floatingPaginationCleanup: (() => void) | null = null;
-
-function initFloatingPagination() {
-  if (floatingPaginationCleanup) {
-    floatingPaginationCleanup();
-    floatingPaginationCleanup = null;
-  }
-
-  const paginations = Array.from(document.querySelectorAll<HTMLElement>(".pagination-wrapper.sticky-pagination"));
-  if (!paginations.length) return;
-
-  const cleanups: Array<() => void> = [];
-
-  paginations.forEach((pagination) => {
-    const anchor = pagination.nextElementSibling as HTMLElement | null;
-    if (!anchor || !anchor.classList.contains("pagination-anchor")) return;
-
-    const updateExpanded = (expanded: boolean) => {
-      pagination.classList.toggle("expand", expanded);
-    };
-
-    const updateCollapsedWidth = () => {
-      const pageCount = parseInt(pagination.getAttribute("data-page-count") || "10", 10);
-      const hasJump = pagination.querySelector(".pagination-jump") !== null;
-      // 页码按钮宽度 3em，加上首页/尾页/省略号等额外空间
-      const baseWidth = pageCount * 3 + 10;
-      const jumpWidth = hasJump ? 10 : 0;
-      const collapsedWidth = baseWidth + jumpWidth;
-      pagination.style.setProperty("--collapsed-width", `${collapsedWidth}em`);
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const isAnchorVisible = entries.some((entry) => entry.isIntersecting);
-        updateExpanded(isAnchorVisible);
-      },
-      { threshold: 0.05 },
-    );
-
-    observer.observe(anchor);
-    updateCollapsedWidth();
-    updateExpanded(false);
-    window.addEventListener("resize", updateCollapsedWidth);
-
-    cleanups.push(() => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateCollapsedWidth);
-      pagination.classList.remove("expand");
-      pagination.style.removeProperty("--collapsed-width");
-    });
-  });
-
-  floatingPaginationCleanup = () => {
-    cleanups.forEach((cleanup) => cleanup());
-  };
-}

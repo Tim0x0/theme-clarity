@@ -1,35 +1,9 @@
 /**
- * 初始化导航栏活动项
- * 根据当前页面路径设置对应的导航项为活动状态
+ * 导航相关功能重新初始化
+ * 从 modules 目录导入实现
  */
-export const initActiveNavItem = () => {
-  if (document.documentElement.dataset.navActive === "false") return;
-  const currentPath = window.location.pathname;
-  const navItems = document.querySelectorAll(".sidebar-nav-item, .dropdown-item");
 
-  navItems.forEach((item) => {
-    item.classList.remove("active");
-    const parentSubmenu = item.closest(".has-submenu");
-    if (parentSubmenu) {
-      parentSubmenu.classList.remove("expanded");
-    }
-
-    const link = item as HTMLAnchorElement;
-    const href = link.getAttribute("href");
-    if (!href || href === "#") return;
-
-    const isActive =
-      currentPath === href || (href !== "/" && currentPath.startsWith(href)) || (href === "/" && currentPath === "/");
-
-    if (isActive) {
-      link.classList.add("active");
-      const parentSubmenu = link.closest(".has-submenu");
-      if (parentSubmenu) {
-        parentSubmenu.classList.add("expanded");
-      }
-    }
-  });
-};
+export { initActiveNavItem } from "../../modules/active-nav";
 
 /**
  * 初始化下拉菜单
