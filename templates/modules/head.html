@@ -38,3 +38,11 @@
     th:href="@{/assets/dist/bangumis.css?v={version}(version=${theme.spec.version})}"
   />
 </th:block>
+
+<th:block th:fragment="steam-head">
+  <link
+    rel="stylesheet"
+    data-pjax-conditional="steam"
+    th:href="@{/assets/dist/steam.css?v={version}(version=${theme.spec.version})}"
+  />
+</th:block>

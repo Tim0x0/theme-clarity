@@ -1,0 +1,33 @@
+<th:block th:fragment="heatmap">
+  <section class="steam-heatmap steam-section" th:if="${showHeatmap}">
+    <div class="steam-section__header">
+      <h2 class="steam-section__title">
+        <span class="icon-[ph--chart-bar-bold]"></span>
+        游戏时长热力图
+      </h2>
+      <span class="steam-section__subtitle" th:text="'最近 ' + ${heatmapDays} + ' 天的游戏时长统计'"></span>
+    </div>
+    <div class="steam-heatmap__container">
+      <div id="heatmap-chart" class="steam-heatmap__chart"></div>
+      <div class="steam-heatmap__loading" id="heatmap-loading">
+        <div class="steam-heatmap__spinner"></div>
+        <div class="steam-heatmap__loading-text">加载热力图数据中...</div>
+      </div>
+      <div class="steam-heatmap__empty" id="heatmap-empty" style="display: none">
+        <div class="steam-empty__icon">📊</div>
+        <div class="steam-empty__title">暂无热力图数据</div>
+        <div class="steam-empty__desc">请在插件设置中启用热力图追踪功能</div>
+      </div>
+      <div class="steam-heatmap__error" id="heatmap-error" style="display: none">
+        <div class="steam-empty__icon">⚠️</div>
+        <div class="steam-empty__title">热力图加载失败</div>
+        <div class="steam-empty__desc">无法获取热力图数据，请稍后重试</div>
+      </div>
+    </div>
+    <div class="steam-heatmap__legend" id="heatmap-legend" style="display: none">
+      <span class="steam-heatmap__legend-label">少</span>
+      <div class="steam-heatmap__legend-colors" id="heatmap-legend-colors"></div>
+      <span class="steam-heatmap__legend-label">多</span>
+    </div>
+  </section>
+</th:block>

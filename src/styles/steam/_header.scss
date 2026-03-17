@@ -1,0 +1,26 @@
+// ========================================
+// Steam 页面头部样式 (Steam Header)
+// ========================================
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// 页面头部
+.steam-header {
+  @include flex(row, center, space-between, 1rem);
+  flex-wrap: wrap;
+  margin-bottom: $spacing-2xl;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid var(--c-border);
+}
+
+// 标题
+.steam-title {
+  @include flex(row, center, flex-start, 0.6rem);
+
+  > [class^="icon-"],
+  > .iconify {
+    font-size: 1.5em;
+    color: var(--c-primary);
+  }
+}

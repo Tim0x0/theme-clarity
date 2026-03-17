@@ -1,0 +1,11 @@
+<th:block th:fragment="error">
+  <div
+    class="steam-error"
+    th:if="${profile == null || recentGames == null || stats == null || badges == null || games == null}"
+  >
+    <span class="steam-error__icon">⚠</span>
+    <span class="steam-error__text"
+      >部分 Steam 数据加载失败，可能是服务器连接超时。请稍后刷新重试，或检查插件配置。</span
+    >
+  </div>
+</th:block>
