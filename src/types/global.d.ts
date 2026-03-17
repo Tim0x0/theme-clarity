@@ -14,6 +14,7 @@ declare global {
     volume?: number;
     autoplay?: boolean;
     showLrc?: boolean;
+    enabledDrag?: boolean;
   }
 
   interface Window {

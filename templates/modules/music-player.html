@@ -3,17 +3,26 @@
     th:if="${theme.config.music?.enabled == true and theme.config.music?.id != null and !#strings.isEmpty(theme.config.music.id)}"
     id="music-player"
     class="music-capsule"
-    th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : ' is-right'"
+    th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : (${theme.config.music?.position == 'left-center'} ? ' is-left-center' : (${theme.config.music?.position == 'right-center'} ? ' is-right-center' : ' is-right'))"
     x-data="musicPlayer()"
     x-init="init()"
-    :class="{ 'expanded': expanded, 'playing': playing }"
+    x-ref="player"
+    :class="{ 'expanded': expanded, 'playing': playing, 'is-dragging': dragState.isDragging, 'is-ready': isReady }"
+    :style="playerPosition.left !== null && playerPosition.top !== null ? `position: fixed; left: ${playerPosition.left}px; top: ${playerPosition.top}px; right: auto; bottom: auto;` : ''"
   >
+    <div
+      class="drag-handle"
+      th:if="${theme.config.music?.enabled_drag == true}"
+      @mousedown="onDragStart($event)"
+      @touchstart="onDragStart($event)"
+      title="拖动移动位置"
+    >
+      <span class="icon-[ph--dots-six-vertical-bold]"></span>
+    </div>
     <div class="capsule-body" @click="toggleExpand()">
       <div class="cover-wrapper">
         <img :src="currentSong?.cover" :alt="currentSong?.title" class="cover-img" :class="{ 'spinning': playing }" />
-        <div class="play-indicator" x-show="playing">
-          <span></span><span></span><span></span>
-        </div>
+        <div class="play-indicator" x-show="playing"><span></span><span></span><span></span></div>
       </div>
 
       <div class="song-info-mini">
@@ -83,7 +92,16 @@
             <span x-show="volume > 0 && volume <= 50" class="icon-[ph--speaker-low-fill]"></span>
             <span x-show="volume === 0" class="icon-[ph--speaker-x-fill]"></span>
           </button>
-          <div class="volume-slider" x-show="showSlider" x-transition>
+          <div
+            class="volume-slider"
+            x-show="showSlider"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+          >
             <input type="range" min="0" max="100" :value="volume" @input="setVolume($event.target.value)" />
           </div>
         </div>
@@ -94,6 +112,14 @@
           <span class="icon-[ph--playlist-bold]"></span>
           <span x-text="'播放列表 (' + playlist.length + ')'"></span>
           <span class="icon-[ph--caret-down-bold]" :class="{ 'rotate': showPlaylist }"></span>
+        </button>
+        <button
+          th:if="${theme.config.music?.enabled_drag == true}"
+          @click="resetPlayerPosition()"
+          class="reset-position-btn"
+          title="重置位置"
+        >
+          <span class="icon-[ph--arrows-out-cardinal-bold]"></span>
         </button>
       </div>
 
@@ -136,6 +162,7 @@
       position: /*[[${theme.config.music.position}]]*/ "right",
       autoplay: /*[[${theme.config.music.autoplay}]]*/ false,
       showLrc: /*[[${theme.config.music.show_lrc}]]*/ true,
+      enabledDrag: /*[[${theme.config.music.enabled_drag}]]*/ false,
     };
   </script>
 </th:block>
