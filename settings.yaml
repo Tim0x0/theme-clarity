@@ -1299,6 +1299,16 @@ spec:
           label: 启用 PJAX
           value: false
           help: 开启后页面切换将使用 PJAX 技术，提升用户体验。注意：某些插件可能不兼容 PJAX ，使用 PJAX 需要舍弃一些功能。
+        - $formkit: number
+          if: "$get(enable_pjax).value === true"
+          name: pjax_timeout
+          id: pjax_timeout
+          key: pjax_timeout
+          label: PJAX 超时时间
+          value: 5000
+          help: 设置 PJAX 页面加载的超时时间（毫秒），默认 5000ms（5秒）。如果网络较慢，可以适当增加此值。
+          min: 1000
+          max: 60000
         - $formkit: array
           name: preconnect_urls
           id: preconnect_urls

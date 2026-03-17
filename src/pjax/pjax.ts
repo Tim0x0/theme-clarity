@@ -13,6 +13,7 @@ export const initPjax = () => {
     return null;
   }
 
+  const timeout = window.themeConfig?.custom?.pjax_timeout || 5000;
   pjaxInstance = new Pjax({
     elements: "a:not([data-no-pjax]):not([target='_blank']):not([href^='#']):not([href^='javascript:'])",
     selectors: ["title", "#main-content", "#z-aside"],
@@ -27,7 +28,7 @@ export const initPjax = () => {
     },
     cacheBust: false,
     scrollRestoration: true,
-    timeout: 5000,
+    timeout: timeout,
   });
 
   // 拦截 handleResponse 方法，在加载内容前预加载样式

@@ -31,6 +31,7 @@ declare global {
         img_alt?: boolean;
         enable_fancybox?: boolean;
         enable_pjax?: boolean;
+        pjax_timeout?: number;
         caption_blacklist?: Array<{ class_name?: string; realNode?: { class_name?: string } }>;
       };
       style?: {
