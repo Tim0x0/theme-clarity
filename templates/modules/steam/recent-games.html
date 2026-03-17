@@ -1,0 +1,72 @@
+<th:block th:fragment="recent-games">
+  <section class="steam-section">
+    <div class="steam-section__header">
+      <h2 class="steam-section__title">
+        <span class="icon-[ph--game-controller-bold]"></span>
+        最近游玩
+      </h2>
+      <span
+        class="steam-section__subtitle"
+        th:if="${recentGames != null && !recentGames.isEmpty()}"
+        th:text="'显示最近两周玩的 ' + ${#lists.size(recentGames)} + ' 款游戏'"
+      ></span>
+    </div>
+    <div class="steam-recent-grid" th:if="${recentGames != null && !recentGames.isEmpty()}">
+      <div class="steam-game-card" th:each="game : ${recentGames}">
+        <a
+          th:if="${enableGameLink}"
+          th:href="'https://store.steampowered.com/app/' + ${game.appId}"
+          target="_blank"
+          class="steam-game-card__link"
+        >
+          <img class="steam-game-card__img" th:src="${game.headerImageUrl}" th:alt="${game.name}" loading="lazy" />
+          <div class="steam-game-card__info">
+            <div class="steam-game-card__name" th:text="${game.name}">Game</div>
+            <div class="steam-game-card__meta">
+              <span class="steam-game-card__time" th:text="${game.playtime2WeeksFormatted}">0h</span>
+              <span
+                class="steam-game-card__achievements"
+                th:if="${game.achievementProgressText != null}"
+                th:text="'🏆 ' + ${game.achievementProgressText}"
+              ></span>
+              <span
+                class="steam-game-card__achievements steam-game-card__achievements--locked"
+                th:if="${game.achievementsLocked != null and game.achievementsLocked}"
+                >🔒</span
+              >
+            </div>
+          </div>
+        </a>
+        <div th:unless="${enableGameLink}" class="steam-game-card__link">
+          <img class="steam-game-card__img" th:src="${game.headerImageUrl}" th:alt="${game.name}" loading="lazy" />
+          <div class="steam-game-card__info">
+            <div class="steam-game-card__name" th:text="${game.name}">Game</div>
+            <div class="steam-game-card__meta">
+              <span class="steam-game-card__time" th:text="${game.playtime2WeeksFormatted}">0h</span>
+              <span
+                class="steam-game-card__achievements"
+                th:if="${game.achievementProgressText != null}"
+                th:text="'🏆 ' + ${game.achievementProgressText}"
+              ></span>
+              <span
+                class="steam-game-card__achievements steam-game-card__achievements--locked"
+                th:if="${game.achievementsLocked != null and game.achievementsLocked}"
+                >🔒</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="steam-empty" th:if="${recentGames != null && recentGames.isEmpty()}" style="padding: 30px 20px">
+      <div class="steam-empty__icon">😴</div>
+      <div class="steam-empty__title">最近两周没有玩游戏</div>
+      <div class="steam-empty__desc">休息一下也挺好的</div>
+    </div>
+    <div class="steam-empty" th:if="${recentGames == null}" style="padding: 30px 20px">
+      <div class="steam-empty__icon">⚠️</div>
+      <div class="steam-empty__title">最近游玩加载失败</div>
+      <div class="steam-empty__desc">Steam 服务器连接超时，请稍后刷新重试</div>
+    </div>
+  </section>
+</th:block>

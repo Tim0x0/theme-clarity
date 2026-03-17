@@ -44,5 +44,10 @@
     rel="stylesheet"
     data-pjax-conditional="shop"
     th:href="@{/assets/dist/shop.css?v={version}(version=${theme.spec.version})}"
+<th:block th:fragment="steam-head">
+  <link
+    rel="stylesheet"
+    data-pjax-conditional="steam"
+    th:href="@{/assets/dist/steam.css?v={version}(version=${theme.spec.version})}"
   />
 </th:block>

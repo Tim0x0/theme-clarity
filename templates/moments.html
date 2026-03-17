@@ -20,8 +20,9 @@
         <span class="icon-[ph--shooting-star-bold]"></span>
         <p>暂无瞬间</p>
       </div>
+
+      <!-- 分页 -->
+      <th:block th:replace="~{modules/pagination :: pagination(data=${moments})}" />
     </div>
-    <!-- 分页 -->
-    <th:block th:replace="~{modules/pagination :: pagination(data=${moments})}" />
   </th:block>
 </html>

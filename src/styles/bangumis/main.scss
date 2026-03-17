@@ -112,10 +112,15 @@
 
 // 番剧列表
 .bangumi-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin: 0 1rem;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin: 0 1rem;
+
+  .pagination-wrapper.sticky-pagination.expand {
+		width: 100%;
+	}
 }
 
 // 番剧卡片

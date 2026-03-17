@@ -29,7 +29,77 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     border-color 220ms ease,
     background-color 220ms ease,
     max-width 360ms $music-ease,
-    width 360ms $music-ease;
+    width 360ms $music-ease,
+    opacity 300ms $music-ease;
+
+  // 初始隐藏，避免从默认位置瞬移
+  opacity: 0;
+  pointer-events: none;
+
+  &.is-ready {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .drag-handle {
+    position: absolute;
+    top: 50%;
+    left: -14px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 32px;
+    border-radius: 4px 0 0 4px;
+    background: color-mix(in srgb, var(--ld-bg-card), transparent 10%);
+    border: 1px solid color-mix(in srgb, var(--c-border), transparent 50%);
+    border-right: none;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 200ms ease, background-color 180ms ease;
+    z-index: 981;
+
+    &:hover {
+      background: color-mix(in srgb, var(--c-bg-soft), transparent 5%);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    span {
+      font-size: 0.85rem;
+      color: var(--c-text-3);
+    }
+  }
+
+  &:hover .drag-handle,
+  &.is-dragging .drag-handle {
+    opacity: 1;
+  }
+
+  // 触摸设备上始终显示拖拽手柄
+  @media (hover: none) and (pointer: coarse) {
+    .drag-handle {
+      opacity: 1;
+    }
+  }
+
+  &.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+    touch-action: none;
+    transition: none;
+    box-shadow:
+      0 20px 48px rgba(15, 23, 42, 0.25),
+      0 6px 16px rgba(15, 23, 42, 0.15);
+
+    .drag-handle {
+      cursor: grabbing;
+      opacity: 1;
+    }
+  }
 
   &::before {
     content: "";
@@ -50,11 +120,32 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     right: auto;
   }
 
+  &.is-right-center {
+    right: 1.5rem;
+    left: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.is-left-center {
+    left: 1.5rem;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   &:hover {
     transform: translate3d(0, -2px, 0);
     box-shadow:
       0 14px 34px rgba(15, 23, 42, 0.16),
       0 4px 10px rgba(15, 23, 42, 0.1);
+  }
+
+  &.is-right-center:hover,
+  &.is-left-center:hover {
+    transform: translateY(-50%) translate3d(0, -2px, 0);
   }
 
   &:not(.playing):not(.expanded):not(:hover) {
@@ -428,7 +519,10 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
       border-radius: 0.5rem;
       background: color-mix(in srgb, var(--ld-bg-card), transparent 3%);
       box-shadow: 0 4px 12px var(--ld-shadow);
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateZ(0);
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
 
       input[type="range"] {
         appearance: none;
@@ -460,6 +554,9 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .playlist-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
     border-top: 1px solid color-mix(in srgb, var(--c-border), transparent 25%);
@@ -470,7 +567,7 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
-    width: 100%;
+    flex: 1;
     padding: 0.42rem;
     border-radius: 0.5rem;
     font-size: 0.75rem;
@@ -484,6 +581,24 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
     .rotate {
       transform: rotate(180deg);
+    }
+  }
+
+  .reset-position-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--c-text-3);
+    transition: all 180ms ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background: color-mix(in srgb, var(--c-bg-soft), transparent 5%);
+      color: var(--c-primary);
     }
   }
 
@@ -620,6 +735,22 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     &.is-left {
       left: 1rem;
       right: auto;
+    }
+
+    &.is-right-center {
+      right: 1rem;
+      left: auto;
+      bottom: 1rem;
+      top: auto;
+      transform: none;
+    }
+
+    &.is-left-center {
+      left: 1rem;
+      right: auto;
+      bottom: 1rem;
+      top: auto;
+      transform: none;
     }
 
     &.expanded {

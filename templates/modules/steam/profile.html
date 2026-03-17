@@ -1,0 +1,83 @@
+<th:block th:fragment="profile">
+  <section class="steam-profile" th:if="${profile != null}" th:with="p=${profile}">
+    <div class="steam-profile__avatar-wrap">
+      <img
+        class="steam-profile__avatar"
+        th:src="${p?.summary?.avatarFull}"
+        th:alt="${p?.summary?.personaName}"
+        alt="Avatar"
+      />
+      <span
+        class="steam-profile__status-dot"
+        th:classappend="${p?.playing ? 'playing' : (p?.summary?.personaState == 1 ? 'online' : '')}"
+      ></span>
+    </div>
+    <div class="steam-profile__info">
+      <div class="steam-profile__header">
+        <h1 class="steam-profile__name" th:text="${p?.summary?.personaName}">Steam User</h1>
+        <a th:href="${p?.summary?.profileUrl}" target="_blank" class="steam-profile__btn">
+          <span class="icon-[ph--arrow-square-out-bold]"></span>
+          访问个人资料
+        </a>
+      </div>
+      <div class="steam-profile__status-row">
+        <span
+          class="steam-profile__status"
+          th:classappend="${p?.playing ? 'playing' : (p?.summary?.personaState == 1 ? 'online' : '')}"
+          th:text="${p?.statusText}"
+          >离线</span
+        >
+        <span
+          class="steam-profile__last-online"
+          th:if="${!p?.playing and p?.summary?.personaState != 1 and p?.summary?.lastLogoff != null}"
+          th:text="'· 上次在线: ' + ${#dates.format(new java.util.Date(p.summary.lastLogoff * 1000), 'yyyy-MM-dd HH:mm')}"
+        ></span>
+      </div>
+      <div class="steam-profile__meta">
+        <span class="steam-profile__level" th:if="${p?.steamLevel}">
+          <span class="icon-[ph--star-bold]"></span>
+          Lv. <span th:text="${p?.steamLevel}">0</span>
+        </span>
+        <th:block th:if="${badges != null && badges.totalBadges > 0}">
+          <span>·</span>
+          <span>🏅 <span th:text="${badges.totalBadges}">0</span> 徽章</span>
+          <span>·</span>
+          <span th:text="${badges.playerXp} + ' XP'">0 XP</span>
+        </th:block>
+      </div>
+      <div class="steam-profile__badges" th:if="${badges != null && badges.badges != null && !badges.badges.isEmpty()}">
+        <th:block th:each="badge, iter : ${badges.badges}" th:if="${iter.index < 8}">
+          <div
+            class="steam-badge"
+            th:classappend="${(badge.foil ? 'steam-badge--foil ' : '') + (badge.imageUrl != null && !badge.imageUrl.isEmpty() ? '' : '')}"
+            th:data-hue="${(badge.level * 37) % 360}"
+            th:title="${(badge.badgeName != null && !badge.badgeName.isEmpty() ? badge.badgeName : badge.displayName) + ' Lv.' + badge.level + ' +' + badge.xp + 'XP'}"
+          >
+            <img
+              th:if="${badge.imageUrl != null && !badge.imageUrl.isEmpty()}"
+              class="steam-badge__img"
+              th:src="${badge.imageUrl}"
+              th:alt="${badge.displayName}"
+              loading="lazy"
+            />
+            <span
+              th:unless="${badge.imageUrl != null && !badge.imageUrl.isEmpty()}"
+              class="steam-badge__icon"
+              th:text="${badge.gameBadge ? '🎮' : '🏅'}"
+              >🏅</span
+            >
+            <span class="steam-badge__level" th:text="${badge.level}"></span>
+          </div>
+        </th:block>
+        <a
+          th:if="${badges.totalBadges > 8}"
+          th:href="${p?.summary?.profileUrl + 'badges/'}"
+          target="_blank"
+          class="steam-badge steam-badge--more"
+        >
+          +<span th:text="${badges.totalBadges - 8}"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</th:block>

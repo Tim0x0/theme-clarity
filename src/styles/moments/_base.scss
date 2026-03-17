@@ -98,8 +98,13 @@
 
 // 瞬间列表容器
 .moments-list {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
 	margin: 0 1rem;
+
+  .pagination-wrapper.sticky-pagination.expand {
+		width: 100%;
+	}
 }

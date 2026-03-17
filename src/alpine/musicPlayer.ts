@@ -28,6 +28,14 @@ interface PersistedMusicState {
   updatedAt: number;
 }
 
+interface DragState {
+  isDragging: boolean;
+  startX: number;
+  startY: number;
+  initialLeft: number;
+  initialTop: number;
+}
+
 interface MusicPlayerState {
   expanded: boolean;
   playing: boolean;
@@ -49,6 +57,10 @@ interface MusicPlayerState {
   lastPersistedAt: number;
   apiUrl?: string;
   customParams?: string;
+  dragState: DragState;
+  playerPosition: { left: number | null; top: number | null };
+  isReady: boolean;
+  enabledDrag?: boolean;
   readonly currentSong: Song | null;
   readonly progress: number;
 
@@ -79,7 +91,14 @@ interface MusicPlayerState {
   updateMediaSession(this: MusicPlayerState): void;
   restoreState(this: MusicPlayerState): Promise<boolean>;
   persistState(this: MusicPlayerState, force?: boolean): void;
-  $refs?: { audio?: HTMLAudioElement };
+  onDragStart(this: MusicPlayerState, event: MouseEvent | TouchEvent): void;
+  onDragMove(this: MusicPlayerState, event: MouseEvent | TouchEvent): void;
+  onDragEnd(this: MusicPlayerState): void;
+  getEventClientPos(this: MusicPlayerState, event: MouseEvent | TouchEvent): { clientX: number; clientY: number };
+  savePlayerPosition(this: MusicPlayerState): void;
+  restorePlayerPosition(this: MusicPlayerState): void;
+  resetPlayerPosition(this: MusicPlayerState): void;
+  $refs?: { audio?: HTMLAudioElement; player?: HTMLElement };
   $nextTick?: (callback: () => void) => void;
 }
 
@@ -88,6 +107,7 @@ const DEFAULT_VOLUME = 70;
 const MAX_RESOLVE_ATTEMPTS = 2;
 const STATE_SAVE_INTERVAL_MS = 1000;
 const PLAYER_STATE_KEY = "clarity:music-player:state:v1";
+const PLAYER_POSITION_KEY = "clarity:music-player:position:v1";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -228,6 +248,16 @@ export function musicPlayer(): MusicPlayerState {
     resumeOnReady: false,
     lastPersistedAt: 0,
 
+    dragState: {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      initialLeft: 0,
+      initialTop: 0,
+    },
+    playerPosition: { left: null, top: null },
+    isReady: false,
+
     get currentSong(): Song | null {
       return this.playlist[this.currentIndex] ?? null;
     },
@@ -245,6 +275,12 @@ export function musicPlayer(): MusicPlayerState {
       this.orderMode = config.order === "random" ? "random" : "list";
       this.apiUrl = toOptionalString(config.api_url);
       this.customParams = toOptionalString(config.custom_params);
+      this.enabledDrag = config.enabledDrag === true;
+
+      // 先恢复位置，再加载播放列表，确保位置在显示前已设置
+      if (this.enabledDrag) {
+        this.restorePlayerPosition();
+      }
 
       await this.loadPlaylist(config.server, config.type, config.id, this.apiUrl);
 
@@ -255,6 +291,13 @@ export function musicPlayer(): MusicPlayerState {
 
       const restored = await this.restoreState();
       this.setupMediaSession();
+
+      // 延迟显示播放器，避免从默认位置瞬移的视觉效果
+      this.$nextTick?.(() => {
+        requestAnimationFrame(() => {
+          this.isReady = true;
+        });
+      });
 
       if (!restored && config.autoplay && this.playlist.length > 0) {
         await this.play();
@@ -281,7 +324,9 @@ export function musicPlayer(): MusicPlayerState {
           return;
         }
 
-        this.playlist = payload.map((item, index) => mapSong(item, index)).filter((song): song is Song => song !== null);
+        this.playlist = payload
+          .map((item, index) => mapSong(item, index))
+          .filter((song): song is Song => song !== null);
 
         this.currentIndex = 0;
         this.currentTime = 0;
@@ -644,7 +689,8 @@ export function musicPlayer(): MusicPlayerState {
         this.updateMediaSession();
       }
 
-      this.pendingSeekTime = Number.isFinite(persisted.currentTime) && persisted.currentTime > 0 ? persisted.currentTime : null;
+      this.pendingSeekTime =
+        Number.isFinite(persisted.currentTime) && persisted.currentTime > 0 ? persisted.currentTime : null;
       this.resumeOnReady = persisted.playing === true;
 
       const audio = this.$refs?.audio;
@@ -669,7 +715,9 @@ export function musicPlayer(): MusicPlayerState {
       const state: PersistedMusicState = {
         signature: this.configSignature,
         index: this.currentIndex,
-        currentTime: Number.isFinite(audio?.currentTime ?? this.currentTime) ? (audio?.currentTime ?? this.currentTime) : 0,
+        currentTime: Number.isFinite(audio?.currentTime ?? this.currentTime)
+          ? (audio?.currentTime ?? this.currentTime)
+          : 0,
         volume: this.volume,
         playing: this.playing,
         orderMode: this.orderMode,
@@ -678,6 +726,109 @@ export function musicPlayer(): MusicPlayerState {
 
       writePersistedState(state);
       this.lastPersistedAt = now;
+    },
+
+    getEventClientPos(this: MusicPlayerState, event: MouseEvent | TouchEvent): { clientX: number; clientY: number } {
+      if ("touches" in event) {
+        const touch = event.touches[0] || event.changedTouches[0];
+        return { clientX: touch.clientX, clientY: touch.clientY };
+      }
+      return { clientX: (event as MouseEvent).clientX, clientY: (event as MouseEvent).clientY };
+    },
+
+    onDragStart(this: MusicPlayerState, event: MouseEvent | TouchEvent) {
+      const player = this.$refs?.player;
+      if (!player) return;
+
+      event.preventDefault();
+      const pos = this.getEventClientPos(event);
+      this.dragState.isDragging = true;
+      this.dragState.startX = pos.clientX;
+      this.dragState.startY = pos.clientY;
+
+      const rect = player.getBoundingClientRect();
+      this.dragState.initialLeft = rect.left;
+      this.dragState.initialTop = rect.top;
+
+      if ("touches" in event) {
+        document.addEventListener("touchmove", this.onDragMove.bind(this), { passive: false });
+        document.addEventListener("touchend", this.onDragEnd.bind(this));
+        document.addEventListener("touchcancel", this.onDragEnd.bind(this));
+      } else {
+        document.addEventListener("mousemove", this.onDragMove.bind(this));
+        document.addEventListener("mouseup", this.onDragEnd.bind(this));
+      }
+    },
+
+    onDragMove(this: MusicPlayerState, event: MouseEvent | TouchEvent) {
+      if (!this.dragState.isDragging) return;
+
+      const player = this.$refs?.player;
+      if (!player) return;
+
+      event.preventDefault();
+      const pos = this.getEventClientPos(event);
+      const deltaX = pos.clientX - this.dragState.startX;
+      const deltaY = pos.clientY - this.dragState.startY;
+
+      let newLeft = this.dragState.initialLeft + deltaX;
+      let newTop = this.dragState.initialTop + deltaY;
+
+      const maxLeft = window.innerWidth - player.offsetWidth;
+      const maxTop = window.innerHeight - player.offsetHeight;
+
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+
+      this.playerPosition.left = newLeft;
+      this.playerPosition.top = newTop;
+    },
+
+    onDragEnd(this: MusicPlayerState) {
+      if (!this.dragState.isDragging) return;
+
+      this.dragState.isDragging = false;
+      this.savePlayerPosition();
+
+      document.removeEventListener("mousemove", this.onDragMove.bind(this));
+      document.removeEventListener("mouseup", this.onDragEnd.bind(this));
+      document.removeEventListener("touchmove", this.onDragMove.bind(this));
+      document.removeEventListener("touchend", this.onDragEnd.bind(this));
+      document.removeEventListener("touchcancel", this.onDragEnd.bind(this));
+    },
+
+    savePlayerPosition(this: MusicPlayerState) {
+      try {
+        localStorage.setItem(PLAYER_POSITION_KEY, JSON.stringify(this.playerPosition));
+      } catch {
+        console.error("Failed to save player position");
+      }
+    },
+
+    restorePlayerPosition(this: MusicPlayerState) {
+      try {
+        const saved = localStorage.getItem(PLAYER_POSITION_KEY);
+        if (saved) {
+          const position = JSON.parse(saved);
+          if (typeof position.left === "number" && typeof position.top === "number") {
+            this.playerPosition = {
+              left: Math.max(0, position.left),
+              top: Math.max(0, position.top),
+            };
+          }
+        }
+      } catch {
+        console.error("Failed to restore player position");
+      }
+    },
+
+    resetPlayerPosition(this: MusicPlayerState) {
+      this.playerPosition = { left: null, top: null };
+      try {
+        localStorage.removeItem(PLAYER_POSITION_KEY);
+      } catch {
+        console.error("Failed to reset player position");
+      }
     },
   };
 }

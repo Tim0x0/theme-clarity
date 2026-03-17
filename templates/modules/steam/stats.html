@@ -1,0 +1,16 @@
+<th:block th:fragment="stats">
+  <section class="steam-stats">
+    <div class="steam-stats__item">
+      <div class="steam-stats__value" th:text="${stats != null ? stats.totalGames : '-'}">0</div>
+      <div class="steam-stats__label">游戏总数</div>
+    </div>
+    <div class="steam-stats__item">
+      <div class="steam-stats__value" th:text="${stats != null ? stats.totalPlaytimeFormatted : '-'}">0 小时</div>
+      <div class="steam-stats__label">总游玩时长</div>
+    </div>
+    <div class="steam-stats__item">
+      <div class="steam-stats__value" th:text="${stats != null ? stats.recentPlaytimeFormatted : '-'}">0 小时</div>
+      <div class="steam-stats__label">最近两周</div>
+    </div>
+  </section>
+</th:block>

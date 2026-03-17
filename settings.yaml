@@ -195,7 +195,7 @@ spec:
           name: theme_mode
           id: theme_mode
           label: 主题默认模式
-          value: light
+          value: system
           options:
             - value: light
               label: 浅色模式
@@ -472,6 +472,13 @@ spec:
           label: 启用音乐播放器
           value: false
           help: 在页面底部悬浮显示音乐播放器
+        - $formkit: switch
+          if: "$get(music_enabled).value === true"
+          name: enabled_drag
+          id: enabled_drag
+          label: 启用音乐播放器拖拽功能
+          value: false
+          help: 启用后可以拖动音乐播放器到任意位置
         - $formkit: text
           name: api_url
           label: Meting API 代理地址
@@ -531,12 +538,16 @@ spec:
           label: 播放器位置
           value: right
           if: "$get(music_enabled).value === true"
-          help: 选择播放器靠左或靠右悬浮
+          help: 选择播放器悬浮位置
           options:
             - value: right
               label: 靠右
+            - value: right-center
+              label: 右中
             - value: left
               label: 靠左
+            - value: left-center
+              label: 左中
         - $formkit: number
           name: volume
           label: 默认音量
