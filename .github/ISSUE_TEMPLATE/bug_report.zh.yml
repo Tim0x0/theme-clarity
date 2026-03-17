@@ -1,6 +1,6 @@
 name: Bug 反馈
 description: 提交 Bug 反馈
-labels: [ bug ]
+labels: [bug]
 body:
   - type: markdown
     id: preface

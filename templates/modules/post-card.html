@@ -1,45 +1,48 @@
 <div th:fragment="post-card(post)" class="article-card card">
-    <a th:href="${post.status.permalink}">
-        <img th:if="${not #strings.isEmpty(post.spec.cover)}" 
-             th:src="${post.spec.cover}" 
-             th:srcset="|${thumbnail.gen(post.spec.cover, 's')} 400w, ${thumbnail.gen(post.spec.cover, 'm')} 800w|" 
-             sizes="(max-width: 528px) 400px, 800px"
-             class="article-cover" 
-             loading="lazy"
-             th:alt="${post.spec.title}" />
-    </a>
-    
-    <article>
-        <h2 class="article-title text-creative">
-            <a th:href="${post.status.permalink}" th:text="${post.spec.title}"></a>
-        </h2>
+  <a th:href="${post.status.permalink}">
+    <img
+      th:if="${not #strings.isEmpty(post.spec.cover)}"
+      th:src="${post.spec.cover}"
+      th:srcset="|${thumbnail.gen(post.spec.cover, 's')} 400w, ${thumbnail.gen(post.spec.cover, 'm')} 800w|"
+      sizes="(max-width: 528px) 400px, 800px"
+      class="article-cover"
+      loading="lazy"
+      th:alt="${post.spec.title}"
+    />
+  </a>
 
-        <p th:if="${not #strings.isEmpty(post.status.excerpt)}" 
-           class="article-description" 
-           th:text="${post.status.excerpt}">
-        </p>
+  <article>
+    <h2 class="article-title text-creative">
+      <a th:href="${post.status.permalink}" th:text="${post.spec.title}"></a>
+    </h2>
 
-        <div class="article-info">
-            <span class="info-item">
-                <span class="icon-[ph--calendar-dots-bold]"></span>
-                <span th:text="${#dates.format(post.spec.publishTime, 'yyyy-MM-dd')}"></span>
-            </span>
+    <p
+      th:if="${not #strings.isEmpty(post.status.excerpt)}"
+      class="article-description"
+      th:text="${post.status.excerpt}"
+    ></p>
 
-            <span
-                th:if="${not #lists.isEmpty(post.categories)}"
-                th:with="categoryData=${post.categories[0]}, categoryIcon=${categoryData.metadata?.annotations?.get('categoryIicon')}, categoryColor=${categoryData.metadata?.annotations?.get('color')}"
-                class="info-item article-category"
-                th:style="${#strings.isEmpty(categoryColor) ? null : '--category-color: ' + categoryColor}">
-                <img th:if="${not #strings.isEmpty(categoryIcon)}" th:src="${categoryIcon}" alt="" />
-                <span th:if="${#strings.isEmpty(categoryIcon)}" class="icon-[ph--folder-bold]"></span>
-                <a th:href="${categoryData.status.permalink}" 
-                   th:text="${categoryData.spec.displayName}"></a>
-            </span>
-            
-            <span class="info-item">
-                <span class="icon-[ph--eye-bold]"></span>
-                <span th:text="${post.stats.visit}"></span>
-            </span>
-        </div>
-    </article>
+    <div class="article-info">
+      <span class="info-item">
+        <span class="icon-[ph--calendar-dots-bold]"></span>
+        <span th:text="${#dates.format(post.spec.publishTime, 'yyyy-MM-dd')}"></span>
+      </span>
+
+      <span
+        th:if="${not #lists.isEmpty(post.categories)}"
+        th:with="categoryData=${post.categories[0]}, categoryIcon=${categoryData.metadata?.annotations?.get('categoryIicon')}, categoryColor=${categoryData.metadata?.annotations?.get('color')}"
+        class="info-item article-category"
+        th:style="${#strings.isEmpty(categoryColor) ? null : '--category-color: ' + categoryColor}"
+      >
+        <img th:if="${not #strings.isEmpty(categoryIcon)}" th:src="${categoryIcon}" alt="" />
+        <span th:if="${#strings.isEmpty(categoryIcon)}" class="icon-[ph--folder-bold]"></span>
+        <a th:href="${categoryData.status.permalink}" th:text="${categoryData.spec.displayName}"></a>
+      </span>
+
+      <span class="info-item">
+        <span class="icon-[ph--eye-bold]"></span>
+        <span th:text="${post.stats.visit}"></span>
+      </span>
+    </div>
+  </article>
 </div>

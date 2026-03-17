@@ -1,28 +1,34 @@
 <div th:fragment="header" class="clarity-header">
-    <div th:if="${theme.config.header.emoji_tail}" class="emoji-tail">
-        <span th:each="emoji,iterStat : ${#strings.arraySplit(theme.config.header.emoji_tail, ',')}"
-              class="split-char"
-              th:style="'--delay: ' + ${iterStat.index * 0.6 - 3} + 's'"
-              th:text="${emoji}">
-        </span>
-    </div>
-    
-    <a href="/">
-        <img th:if="${not #strings.isEmpty(theme.config.header.logo)}"
-             th:src="${theme.config.header.logo}"
-             class="clarity-logo"
-             th:classappend="${theme.config.header.show_title} ? 'circle' : ''"
-             th:alt="${site.title}"/>
-    </a>
+  <div th:if="${theme.config.header.emoji_tail}" class="emoji-tail">
+    <span
+      th:each="emoji,iterStat : ${#strings.arraySplit(theme.config.header.emoji_tail, ',')}"
+      class="split-char"
+      th:style="'--delay: ' + ${iterStat.index * 0.6 - 3} + 's'"
+      th:text="${emoji}"
+    >
+    </span>
+  </div>
 
-    <div th:if="${theme.config.header.show_title}" class="clarity-text">
-        <div class="header-title">
-            <span th:each="char,iterStat : ${#strings.arraySplit(site.title, '')}"
-                  class="split-char"
-                  th:style="'--delay: ' + ${(iterStat.index + 1) * 0.1} + 's'"
-                  th:text="${char}">
-            </span>
-        </div>
-        <div class="header-subtitle" th:text="${theme.config.header.subtitle}"></div>
+  <a href="/">
+    <img
+      th:if="${not #strings.isEmpty(theme.config.header.logo)}"
+      th:src="${theme.config.header.logo}"
+      class="clarity-logo"
+      th:classappend="${theme.config.header.show_title} ? 'circle' : ''"
+      th:alt="${site.title}"
+    />
+  </a>
+
+  <div th:if="${theme.config.header.show_title}" class="clarity-text">
+    <div class="header-title">
+      <span
+        th:each="char,iterStat : ${#strings.arraySplit(site.title, '')}"
+        class="split-char"
+        th:style="'--delay: ' + ${(iterStat.index + 1) * 0.1} + 's'"
+        th:text="${char}"
+      >
+      </span>
     </div>
+    <div class="header-subtitle" th:text="${theme.config.header.subtitle}"></div>
+  </div>
 </div>

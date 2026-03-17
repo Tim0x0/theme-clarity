@@ -100,16 +100,14 @@ const getMonthIndex = (year: number, month: number): number => year * 12 + month
 const getHoverDefaultText = (state: CalendarState): string =>
   `${state.currentYear}年${state.currentMonth + 1}月：悬浮某天查看当天活跃`;
 
-const createDayCell = (
-  options: {
-    year: number;
-    month: number;
-    day: number;
-    isToday?: boolean;
-    level?: number;
-    counter?: ActivityCounter;
-  },
-): HTMLDivElement => {
+const createDayCell = (options: {
+  year: number;
+  month: number;
+  day: number;
+  isToday?: boolean;
+  level?: number;
+  counter?: ActivityCounter;
+}): HTMLDivElement => {
   const cell = document.createElement("div");
   cell.className = "calendar-day";
   if (options.isToday) cell.classList.add("is-today");

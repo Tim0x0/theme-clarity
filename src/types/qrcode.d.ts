@@ -1,4 +1,4 @@
-declare module 'qrcode' {
+declare module "qrcode" {
   interface QRCodeOptions {
     width?: number;
     margin?: number;
@@ -7,6 +7,6 @@ declare module 'qrcode' {
       light?: string;
     };
   }
-  
+
   export function toDataURL(text: string, options?: QRCodeOptions): Promise<string>;
 }
