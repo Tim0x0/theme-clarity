@@ -195,7 +195,7 @@ spec:
           name: theme_mode
           id: theme_mode
           label: 主题默认模式
-          value: light
+          value: system
           options:
             - value: light
               label: 浅色模式
