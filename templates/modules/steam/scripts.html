@@ -10,13 +10,13 @@
   </script>
 
   <script th:if="${showHeatmap}" th:inline="javascript">
-    const heatmapConfig = {
+    window.heatmapConfig = {
       days: /*[[${heatmapDays}]]*/ 365,
       colorTheme: /*[[${heatmapColorTheme}]]*/ "steam",
       showLegend: /*[[${heatmapShowLegend}]]*/ true,
     };
 
-    const colorThemes = {
+    window.colorThemes = {
       steam: {
         empty: "var(--c-bg)",
         colors: ["#1e3a5f", "#2a5a8f", "#4a7ba7", "var(--c-primary)", "#8ed1f7"],
@@ -35,7 +35,7 @@
       },
     };
 
-    function loadECharts() {
+    window.loadECharts = function () {
       return new Promise((resolve, reject) => {
         if (window.echarts) {
           resolve(window.echarts);
@@ -47,12 +47,12 @@
         script.onerror = reject;
         document.head.appendChild(script);
       });
-    }
+    };
 
-    async function fetchHeatmapData() {
+    window.fetchHeatmapData = async function () {
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - heatmapConfig.days);
+      startDate.setDate(startDate.getDate() - window.heatmapConfig.days);
 
       const formatDate = (date) => {
         const year = date.getFullYear();
@@ -61,16 +61,16 @@
         return `${year}-${month}-${day}`;
       };
 
-      const url = `/apis/api.steam.timxs.com/v1alpha1/heatmap/records?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&page=1&size=${heatmapConfig.days}`;
+      const url = `/apis/api.steam.timxs.com/v1alpha1/heatmap/records?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&page=1&size=${window.heatmapConfig.days}`;
 
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch heatmap data");
       }
       return await response.json();
-    }
+    };
 
-    function processHeatmapData(data) {
+    window.processHeatmapData = function (data) {
       const dateMap = new Map();
 
       if (data.items && data.items.length > 0) {
@@ -84,7 +84,7 @@
       const result = [];
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - heatmapConfig.days);
+      startDate.setDate(startDate.getDate() - window.heatmapConfig.days);
 
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().split("T")[0];
@@ -94,24 +94,26 @@
       }
 
       return result;
-    }
+    };
 
-    async function renderHeatmap() {
+    window.renderSteamHeatmap = async function () {
       const loadingEl = document.getElementById("heatmap-loading");
       const emptyEl = document.getElementById("heatmap-empty");
       const errorEl = document.getElementById("heatmap-error");
       const chartEl = document.getElementById("heatmap-chart");
 
+      if (!chartEl) return;
+
       try {
-        const echarts = await loadECharts();
-        const data = await fetchHeatmapData();
-        const chartData = processHeatmapData(data);
+        const echarts = await window.loadECharts();
+        const data = await window.fetchHeatmapData();
+        const chartData = window.processHeatmapData(data);
 
         loadingEl.style.display = "none";
         chartEl.style.display = "block";
 
         const chart = echarts.init(chartEl);
-        const theme = colorThemes[heatmapConfig.colorTheme] || colorThemes.steam;
+        const theme = window.colorThemes[window.heatmapConfig.colorTheme] || window.colorThemes.steam;
         const colors = theme.colors;
         const emptyColor = theme.empty;
 
@@ -142,7 +144,7 @@
             borderColor: isDark ? "#2a475e" : "#e5e7eb",
             textStyle: { color: textColor },
           },
-          visualMap: heatmapConfig.showLegend
+          visualMap: window.heatmapConfig.showLegend
             ? {
                 show: true,
                 type: "piecewise",
@@ -164,7 +166,7 @@
             top: 20,
             left: 30,
             right: 30,
-            bottom: heatmapConfig.showLegend ? 40 : 20,
+            bottom: window.heatmapConfig.showLegend ? 40 : 20,
             range: [chartData[0][0], chartData[chartData.length - 1][0]],
             cellSize: ["auto", 13],
             splitLine: { show: false },
@@ -218,12 +220,12 @@
         loadingEl.style.display = "none";
         errorEl.style.display = "flex";
       }
-    }
+    };
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", renderHeatmap);
+      document.addEventListener("DOMContentLoaded", window.renderSteamHeatmap);
     } else {
-      renderHeatmap();
+      window.renderSteamHeatmap();
     }
   </script>
 </th:block>
