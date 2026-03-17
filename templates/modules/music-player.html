@@ -3,7 +3,7 @@
     th:if="${theme.config.music?.enabled == true and theme.config.music?.id != null and !#strings.isEmpty(theme.config.music.id)}"
     id="music-player"
     class="music-capsule"
-    th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : ' is-right'"
+    th:classappend="${theme.config.music?.position == 'left'} ? ' is-left' : (${theme.config.music?.position == 'left-center'} ? ' is-left-center' : (${theme.config.music?.position == 'right-center'} ? ' is-right-center' : ' is-right'))"
     x-data="musicPlayer()"
     x-init="init()"
     x-ref="player"

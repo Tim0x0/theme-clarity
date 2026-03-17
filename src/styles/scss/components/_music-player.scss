@@ -120,11 +120,32 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     right: auto;
   }
 
+  &.is-right-center {
+    right: 1.5rem;
+    left: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.is-left-center {
+    left: 1.5rem;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   &:hover {
     transform: translate3d(0, -2px, 0);
     box-shadow:
       0 14px 34px rgba(15, 23, 42, 0.16),
       0 4px 10px rgba(15, 23, 42, 0.1);
+  }
+
+  &.is-right-center:hover,
+  &.is-left-center:hover {
+    transform: translateY(-50%) translate3d(0, -2px, 0);
   }
 
   &:not(.playing):not(.expanded):not(:hover) {
@@ -714,6 +735,22 @@ $music-ease: cubic-bezier(0.22, 1, 0.36, 1);
     &.is-left {
       left: 1rem;
       right: auto;
+    }
+
+    &.is-right-center {
+      right: 1rem;
+      left: auto;
+      bottom: 1rem;
+      top: auto;
+      transform: none;
+    }
+
+    &.is-left-center {
+      left: 1rem;
+      right: auto;
+      bottom: 1rem;
+      top: auto;
+      transform: none;
     }
 
     &.expanded {

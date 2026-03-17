@@ -538,12 +538,16 @@ spec:
           label: 播放器位置
           value: right
           if: "$get(music_enabled).value === true"
-          help: 选择播放器靠左或靠右悬浮
+          help: 选择播放器悬浮位置
           options:
             - value: right
               label: 靠右
+            - value: right-center
+              label: 右中
             - value: left
               label: 靠左
+            - value: left-center
+              label: 左中
         - $formkit: number
           name: volume
           label: 默认音量
