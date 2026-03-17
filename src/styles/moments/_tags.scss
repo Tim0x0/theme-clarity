@@ -24,6 +24,15 @@
 		display: none;
 	}
 
+	&.scrollcheck-x {
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
+
 	&:hover .at-slide-hover {
 		opacity: 1;
 		transform: translateY(0);
