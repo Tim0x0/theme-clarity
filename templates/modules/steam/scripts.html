@@ -12,29 +12,45 @@
   <script th:if="${showHeatmap}" th:inline="javascript">
     (function () {
       const SteamHeatmap = {
+        chart: null,
+        chartData: null,
+        observer: null,
+
         config: {
           days: /*[[${heatmapDays}]]*/ 365,
-          colorTheme: /*[[${heatmapColorTheme}]]*/ "steam",
           showLegend: /*[[${heatmapShowLegend}]]*/ true,
         },
 
-        colorThemes: {
-          steam: {
-            empty: "var(--c-bg)",
-            colors: ["#1e3a5f", "#2a5a8f", "#4a7ba7", "var(--c-primary)", "#8ed1f7"],
-          },
-          github: {
-            empty: "var(--c-bg)",
-            colors: ["#0e4429", "#006d32", "#26a641", "#39d353", "#7ee787"],
-          },
-          fire: {
-            empty: "var(--c-bg)",
-            colors: ["#662200", "#994400", "#cc5500", "#ff6600", "#ff9933"],
-          },
-          purple: {
-            empty: "var(--c-bg)",
-            colors: ["#3d2c5e", "#5a3d8f", "#6247aa", "#8b5cf6", "#a78bfa"],
-          },
+        // 获取主题配色 - 根据当前明暗模式返回对应的颜色配置
+        getThemeColors: function () {
+          const isDark = document.documentElement.classList.contains("dark");
+          const primaryHue = 220; // 主题色相 220deg (蓝色)
+
+          if (isDark) {
+            // 暗色模式配色
+            return {
+              empty: "#0d1117",
+              colors: [
+                `hsl(${primaryHue} 60% 25%)`,
+                `hsl(${primaryHue} 70% 35%)`,
+                `hsl(${primaryHue} 80% 45%)`,
+                `hsl(${primaryHue} 90% 60%)`,
+                `hsl(${primaryHue} 100% 70%)`,
+              ],
+            };
+          } else {
+            // 亮色模式配色
+            return {
+              empty: "#f6f8fa",
+              colors: [
+                `hsl(${primaryHue} 50% 85%)`,
+                `hsl(${primaryHue} 60% 70%)`,
+                `hsl(${primaryHue} 70% 55%)`,
+                `hsl(${primaryHue} 80% 45%)`,
+                `hsl(${primaryHue} 90% 35%)`,
+              ],
+            };
+          }
         },
 
         loadECharts: function () {
@@ -98,6 +114,91 @@
           return result;
         },
 
+        // 初始化主题模式（浅、暗色）变化监听
+        initThemeObserver: function () {
+          if (SteamHeatmap.observer) {
+            SteamHeatmap.observer.disconnect();
+          }
+
+          SteamHeatmap.observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                SteamHeatmap.updateChartTheme();
+              }
+            });
+          });
+
+          SteamHeatmap.observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+          });
+        },
+
+        // 更新热力图（浅色、暗色）主题（不重新获取数据）
+        updateChartTheme: function () {
+          if (!SteamHeatmap.chart || !SteamHeatmap.chartData) return;
+
+          const themeColors = SteamHeatmap.getThemeColors();
+          const colors = themeColors.colors;
+          const emptyColor = themeColors.empty;
+
+          const maxMinutes = Math.max(...SteamHeatmap.chartData.map((item) => item[1]), 1);
+          const step = maxMinutes / 5;
+          const pieces = [
+            { min: 0, max: 0, color: emptyColor },
+            { gt: 0, lte: step, color: colors[0] },
+            { gt: step, lte: step * 2, color: colors[1] },
+            { gt: step * 2, lte: step * 3, color: colors[2] },
+            { gt: step * 3, lte: step * 4, color: colors[3] },
+            { gt: step * 4, color: colors[4] },
+          ];
+
+          const isDark = document.documentElement.classList.contains("dark");
+          const textColor = isDark ? "#c7d5e0" : "#333";
+          const subTextColor = isDark ? "#8f98a0" : "#666";
+
+          SteamHeatmap.chart.setOption({
+            tooltip: {
+              backgroundColor: isDark ? "rgba(27, 40, 56, 0.95)" : "rgba(255, 255, 255, 0.95)",
+              borderColor: isDark ? "#2a475e" : "#e5e7eb",
+              textStyle: { color: textColor },
+            },
+            visualMap: {
+              pieces: pieces,
+              textStyle: { color: subTextColor },
+            },
+            calendar: {
+              yearLabel: { color: textColor },
+              monthLabel: { color: subTextColor },
+              dayLabel: { color: subTextColor },
+            },
+            series: [
+              {
+                itemStyle: {
+                  borderColor: isDark ? "#1b2838" : "#f3f4f6",
+                },
+              },
+            ],
+          });
+
+          const legendColorsEl = document.getElementById("heatmap-legend-colors");
+          if (legendColorsEl) {
+            legendColorsEl.innerHTML = "";
+
+            const emptyBlock = document.createElement("div");
+            emptyBlock.className = "steam-heatmap__legend-color";
+            emptyBlock.style.backgroundColor = emptyColor;
+            legendColorsEl.appendChild(emptyBlock);
+
+            colors.forEach((color) => {
+              const colorBlock = document.createElement("div");
+              colorBlock.className = "steam-heatmap__legend-color";
+              colorBlock.style.backgroundColor = color;
+              legendColorsEl.appendChild(colorBlock);
+            });
+          }
+        },
+
         render: async function () {
           const loadingEl = document.getElementById("heatmap-loading");
           const emptyEl = document.getElementById("heatmap-empty");
@@ -106,20 +207,33 @@
 
           if (!chartEl) return;
 
+          // 清理旧的图表实例和监听器
+          if (SteamHeatmap.chart) {
+            SteamHeatmap.chart.dispose();
+            SteamHeatmap.chart = null;
+          }
+          if (SteamHeatmap.observer) {
+            SteamHeatmap.observer.disconnect();
+            SteamHeatmap.observer = null;
+          }
+
           try {
             const echarts = await SteamHeatmap.loadECharts();
             const data = await SteamHeatmap.fetchHeatmapData();
-            const chartData = SteamHeatmap.processHeatmapData(data);
+            SteamHeatmap.chartData = SteamHeatmap.processHeatmapData(data);
 
             loadingEl.style.display = "none";
             chartEl.style.display = "block";
 
-            const chart = echarts.init(chartEl);
-            const theme = SteamHeatmap.colorThemes[SteamHeatmap.config.colorTheme] || SteamHeatmap.colorThemes.steam;
-            const colors = theme.colors;
-            const emptyColor = theme.empty;
+            SteamHeatmap.chart = echarts.init(chartEl);
 
-            const maxMinutes = Math.max(...chartData.map((item) => item[1]), 1);
+            // 初始化主题监听
+            SteamHeatmap.initThemeObserver();
+            const themeColors = SteamHeatmap.getThemeColors();
+            const colors = themeColors.colors;
+            const emptyColor = themeColors.empty;
+
+            const maxMinutes = Math.max(...SteamHeatmap.chartData.map((item) => item[1]), 1);
             const step = maxMinutes / 5;
             const pieces = [
               { min: 0, max: 0, color: emptyColor },
@@ -169,7 +283,7 @@
                 left: 30,
                 right: 30,
                 bottom: SteamHeatmap.config.showLegend ? 40 : 20,
-                range: [chartData[0][0], chartData[chartData.length - 1][0]],
+                range: [SteamHeatmap.chartData[0][0], SteamHeatmap.chartData[SteamHeatmap.chartData.length - 1][0]],
                 cellSize: ["auto", 13],
                 splitLine: { show: false },
                 itemStyle: {
@@ -184,7 +298,7 @@
                 {
                   type: "heatmap",
                   coordinateSystem: "calendar",
-                  data: chartData,
+                  data: SteamHeatmap.chartData,
                   itemStyle: {
                     borderColor: isDark ? "#1b2838" : "#f3f4f6",
                     borderWidth: 2,
@@ -194,7 +308,7 @@
               ],
             };
 
-            chart.setOption(option);
+            SteamHeatmap.chart.setOption(option);
 
             const legendEl = document.getElementById("heatmap-legend");
             const legendColorsEl = document.getElementById("heatmap-legend-colors");
@@ -215,7 +329,7 @@
             legendEl.style.display = "flex";
 
             window.addEventListener("resize", () => {
-              chart.resize();
+              SteamHeatmap.chart.resize();
             });
           } catch (error) {
             console.error("Failed to render heatmap:", error);
