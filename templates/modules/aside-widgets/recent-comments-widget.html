@@ -39,6 +39,12 @@
                   loading="lazy"
                 />
                 <span
+                  th:if="${comment.owner == null or #strings.isEmpty(comment.owner.avatar)}"
+                  class="comment-avatar-text"
+                  th:text="${#strings.substring(comment.owner != null and not #strings.isEmpty(comment.owner.displayName) ? comment.owner.displayName : (comment.spec.owner != null ? comment.spec.owner.displayName : '匿名'), 0, 1)}"
+                  >匿</span
+                >
+                <span
                   class="comment-author"
                   th:text="${comment.owner != null and not #strings.isEmpty(comment.owner.displayName) ? comment.owner.displayName : (comment.spec.owner != null ? comment.spec.owner.displayName : '匿名')}"
                   >评论者</span
@@ -97,6 +103,12 @@
                     th:alt="${reply.owner.displayName}"
                     loading="lazy"
                   />
+                  <span
+                    th:if="${reply.owner == null or #strings.isEmpty(reply.owner.avatar)}"
+                    class="reply-avatar-text"
+                    th:text="${#strings.substring(reply.owner != null and not #strings.isEmpty(reply.owner.displayName) ? reply.owner.displayName : (reply.spec.owner != null ? reply.spec.owner.displayName : '匿名'), 0, 1)}"
+                    >匿</span
+                  >
                   <span
                     class="reply-author"
                     th:text="${reply.owner != null and not #strings.isEmpty(reply.owner.displayName) ? reply.owner.displayName : (reply.spec.owner != null ? reply.spec.owner.displayName : '匿名')}"
