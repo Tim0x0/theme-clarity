@@ -661,12 +661,16 @@ spec:
                   if: "$value.widget === 'activity-calendar'"
                 - $formkit: text
                   name: comments_title
+                  id: comments_title
+                  key: comments_title
                   label: 标题
                   value: "最新评论"
                   placeholder: 最新评论
                   if: "$value.widget === 'recent-comments'"
                 - $formkit: number
                   name: count
+                  id: count
+                  key: count
                   label: 显示条数
                   value: 5
                   min: 1
@@ -674,12 +678,16 @@ spec:
                   if: "$value.widget === 'recent-comments'"
                 - $formkit: switch
                   name: show_replies
+                  id: show_replies
+                  key: show_replies
                   label: 显示回复
                   value: true
                   help: 是否显示评论的回复内容
                   if: "$value.widget === 'recent-comments'"
                 - $formkit: number
                   name: reply_count
+                  id: reply_count
+                  key: reply_count
                   label: 回复显示条数
                   value: 3
                   min: 1
