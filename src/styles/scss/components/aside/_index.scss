@@ -31,6 +31,9 @@ $breakpoint-widescreen: 1080px !default;
 // 微语组件
 @use 'moments';
 
+// 最新评论组件
+@use 'recent-comments';
+
 // 推广轮播
 @use 'promotion';
 

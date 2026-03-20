@@ -1,0 +1,114 @@
+<section
+  th:fragment="recent-comments-widget"
+  class="widget"
+  th:with="
+    commentsTitle=${item.comments_title ?: '最新评论'},
+    commentsCount=${item.count ?: 5}
+  "
+>
+  <hgroup class="widget-title">
+    <span class="title-text text-creative" th:text="${commentsTitle}">最新评论</span>
+  </hgroup>
+  <div class="widget-body widget-card recent-comments-widget">
+    <th:block th:with="comments = ${commentFinder.list(null, 1, commentsCount)}">
+      <ul class="recent-comments-list" th:if="${not #lists.isEmpty(comments.items)}" th:data-max-length="50">
+        <li th:each="comment : ${comments.items}" class="recent-comment-item">
+          <div class="comment-header">
+            <span
+              class="comment-author"
+              th:text="${comment.owner != null and not #strings.isEmpty(comment.owner.displayName) ? comment.owner.displayName : (comment.spec.owner != null ? comment.spec.owner.displayName : '匿名')}"
+              >评论者</span
+            >
+            <time
+              class="comment-time"
+              th:datetime="${comment.metadata.creationTimestamp}"
+              th:text="${#temporals.format(comment.metadata.creationTimestamp, 'MM-dd HH:mm')}"
+              >时间</time
+            >
+          </div>
+          <th:block th:if="${comment.spec.subjectRef != null}">
+            <th:block th:if="${comment.spec.subjectRef.kind == 'SinglePage'}">
+              <th:block th:with="singlePage = ${singlePageFinder.getByName(comment.spec.subjectRef.name)}">
+                <a class="comment-link" th:href="${singlePage.status.permalink}">
+                  <script type="text/plain" class="comment-raw-content" th:utext="${comment.spec.content}"></script>
+                  <div class="comment-content"></div>
+                </a>
+              </th:block>
+            </th:block>
+            <th:block th:if="${comment.spec.subjectRef.kind == 'Post'}">
+              <th:block th:with="post = ${postFinder.getByName(comment.spec.subjectRef.name)}">
+                <a class="comment-link" th:href="${post.status.permalink}">
+                  <script type="text/plain" class="comment-raw-content" th:utext="${comment.spec.content}"></script>
+                  <div class="comment-content"></div>
+                </a>
+              </th:block>
+            </th:block>
+            <th:block th:if="${comment.spec.subjectRef.kind == 'Moment'}">
+              <a class="comment-link" th:href="@{/moments}">
+                <script type="text/plain" class="comment-raw-content" th:utext="${comment.spec.content}"></script>
+                <div class="comment-content"></div>
+              </a>
+            </th:block>
+            <th:block th:if="${comment.spec.subjectRef.kind == 'Plugin'}">
+              <a class="comment-link" th:href="@{/links}">
+                <script type="text/plain" class="comment-raw-content" th:utext="${comment.spec.content}"></script>
+                <div class="comment-content"></div>
+              </a>
+            </th:block>
+          </th:block>
+          <th:block th:if="${comment.spec.subjectRef == null}">
+            <div class="comment-content-wrapper">
+              <script type="text/plain" class="comment-raw-content" th:utext="${comment.spec.content}"></script>
+              <div class="comment-content"></div>
+            </div>
+          </th:block>
+        </li>
+      </ul>
+      <div th:if="${#lists.isEmpty(comments.items)}" class="empty-tip">
+        <span class="icon-[ph--chat-circle-dots-bold]"></span>
+        暂无评论
+      </div>
+    </th:block>
+    <script>
+      (function () {
+        const widget = document.querySelector(".recent-comments-widget");
+        if (!widget) return;
+
+        const list = widget.querySelector(".recent-comments-list");
+        if (!list) return;
+
+        const maxLength = parseInt(list.dataset.maxLength || "50", 10);
+        const parser = new DOMParser();
+
+        const run = () => {
+          const items = list.querySelectorAll(".recent-comment-item");
+          items.forEach((item) => {
+            const rawScript = item.querySelector(".comment-raw-content");
+            const contentDiv = item.querySelector(".comment-content");
+            if (!rawScript || !contentDiv) return;
+
+            const raw = rawScript.textContent || rawScript.innerText || "";
+            if (!raw) {
+              contentDiv.textContent = "";
+              return;
+            }
+
+            // 解析 HTML 并提取纯文本
+            const doc = parser.parseFromString(raw, "text/html");
+            let text = doc.body.textContent || doc.body.innerText || "";
+            text = text.trim();
+
+            // 截断文本
+            if (text.length > maxLength) {
+              text = text.substring(0, maxLength) + "...";
+            }
+
+            contentDiv.textContent = text;
+          });
+        };
+
+        window.requestIdleCallback ? requestIdleCallback(run) : run();
+      })();
+    </script>
+  </div>
+</section>

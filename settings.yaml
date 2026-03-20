@@ -622,6 +622,8 @@ spec:
                       label: 推广轮播
                     - value: "activity-calendar"
                       label: 活跃日历
+                    - value: "recent-comments"
+                      label: 最新评论
                     - value: "custom"
                       label: 自定义
                 - $formkit: text
@@ -657,6 +659,19 @@ spec:
                   max: 1000
                   help: 统计最近 N 条文章、瞬间、评论数据，数值越大越完整
                   if: "$value.widget === 'activity-calendar'"
+                - $formkit: text
+                  name: comments_title
+                  label: 标题
+                  value: "最新评论"
+                  placeholder: 最新评论
+                  if: "$value.widget === 'recent-comments'"
+                - $formkit: number
+                  name: count
+                  label: 显示条数
+                  value: 5
+                  min: 1
+                  max: 10
+                  if: "$value.widget === 'recent-comments'"
                 - $formkit: text
                   name: title
                   label: 自定义标题

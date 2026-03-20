@@ -36,6 +36,9 @@
             th:replace="~{modules/aside-widgets/activity-calendar-widget :: activity-calendar-widget}"
           ></th:block>
         </th:block>
+        <th:block th:case="'recent-comments'">
+          <th:block th:replace="~{modules/aside-widgets/recent-comments-widget :: recent-comments-widget}"></th:block>
+        </th:block>
         <th:block th:case="'custom'">
           <th:block th:replace="~{modules/aside-widgets/custom-widget :: custom-widget(item=${item})}"></th:block>
         </th:block>
