@@ -694,6 +694,14 @@ spec:
                   max: 5
                   help: 每条评论最多显示几条回复
                   if: "$value.widget === 'recent-comments'"
+                - $formkit: switch
+                  name: show_avatar
+                  id: show_avatar
+                  key: show_avatar
+                  label: 显示头像
+                  value: true
+                  help: 是否显示评论者头像
+                  if: "$value.widget === 'recent-comments'"
                 - $formkit: text
                   name: title
                   label: 自定义标题
