@@ -6,23 +6,71 @@
   <th:block th:fragment="head">
     <th:block th:replace="~{modules/head :: moments-head}" />
   </th:block>
-  <th:block th:fragment="content">
-    <!-- 瞬间列表标题 -->
-    <th:block th:replace="~{modules/moment/header :: content}" />
-    <!-- 瞬间标签 -->
-    <th:block th:replace="~{modules/moment/tags :: content}" />
+  <th:block th:fragment="content" th:with="momentsConfig=${theme.config.plugins?.moments}">
+    <!--/* ========== 卡片模式（默认） ========== */-->
+    <th:block th:if="${momentsConfig == null or momentsConfig.template == null or momentsConfig.template == 'card'}">
+      <!-- 瞬间列表标题 -->
+      <th:block th:replace="~{modules/moment/header :: content}" />
+      <!-- 瞬间标签 -->
+      <th:block th:replace="~{modules/moment/tags :: content}" />
 
-    <div class="moments-list proper-height">
-      <!-- 瞬间列表 -->
-      <th:block th:replace="~{modules/moment/card :: content}" />
+      <div class="moments-list proper-height">
+        <!-- 瞬间列表 -->
+        <th:block th:replace="~{modules/moment/card :: content}" />
 
-      <div th:if="${#lists.isEmpty(moments.items)}" class="moments-empty">
-        <span class="icon-[ph--shooting-star-bold]"></span>
-        <p>暂无瞬间</p>
+        <div th:if="${#lists.isEmpty(moments.items)}" class="moments-empty">
+          <span class="icon-[ph--shooting-star-bold]"></span>
+          <p>暂无瞬间</p>
+        </div>
+
+        <!-- 分页 -->
+        <th:block th:replace="~{modules/pagination :: pagination(data=${moments})}" />
+      </div>
+    </th:block>
+
+    <!--/* ========== 列表模式 ========== */-->
+    <th:block th:if="${momentsConfig != null and momentsConfig.template == 'list'}">
+      <div
+        class="moments-banner"
+        th:style="${momentsConfig.banner_image != null and momentsConfig.banner_image != ''} ? 'background-image: url(' + ${momentsConfig.banner_image} + ')' : ''"
+      >
+        <div class="moments-banner-content">
+          <h1 class="moments-banner-title" th:text="${momentsConfig.title ?: '瞬间'}">瞬间</h1>
+          <div class="moments-banner-bottom">
+            <p class="moments-banner-desc" th:text="${momentsConfig.banner_desc ?: '记录生活中的点滴瞬间。'}">
+              记录生活中的点滴瞬间。
+            </p>
+            <div class="moments-banner-meta">
+              <span class="moments-banner-count" th:if="${moments.total > 0}">
+                <strong th:text="${moments.total}"></strong> 条瞬间
+              </span>
+              <a href="/moments/rss.xml" class="moments-banner-rss" title="RSS 订阅" target="_blank" rel="noopener">
+                <span class="icon-[ph--rss-simple-bold]"></span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 分页 -->
-      <th:block th:replace="~{modules/pagination :: pagination(data=${moments})}" />
-    </div>
+      <!-- 标签筛选栏 -->
+      <div class="moments-list-tags">
+        <th:block th:replace="~{modules/moment/tags :: content}" />
+      </div>
+
+      <div class="page-moments-list proper-height">
+        <div class="moment-list-items">
+          <!-- 瞬间列表项 -->
+          <th:block th:replace="~{modules/moment/list-card :: content}" />
+        </div>
+
+        <div th:if="${#lists.isEmpty(moments.items)}" class="moments-empty">
+          <span class="icon-[ph--shooting-star-bold]"></span>
+          <p>暂无瞬间</p>
+        </div>
+
+        <!-- 分页 -->
+        <th:block th:replace="~{modules/pagination :: pagination(data=${moments})}" />
+      </div>
+    </th:block>
   </th:block>
 </html>

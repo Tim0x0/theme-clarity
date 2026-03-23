@@ -1208,6 +1208,18 @@ spec:
           label: 瞬间插件
           help: plugin-moments
           children:
+            - $formkit: select
+              name: template
+              id: moments_template
+              key: moments_template
+              label: 模板样式
+              value: card
+              help: 选择瞬间页面的展示模板
+              options:
+                - value: card
+                  label: 卡片模式（默认）
+                - value: list
+                  label: 列表模式
             - $formkit: text
               name: title
               label: 页面标题
@@ -1220,6 +1232,20 @@ spec:
               value: 瞬间详情
               placeholder: 瞬间详情
               validation: required
+            - $formkit: text
+              if: "$get(moments_template).value === 'list'"
+              name: banner_desc
+              label: Banner 描述
+              value: 记录生活中的点滴瞬间。
+              placeholder: 记录生活中的点滴瞬间。
+              help: 仅列表模式生效
+            - $formkit: attachment
+              if: "$get(moments_template).value === 'list'"
+              name: banner_image
+              label: Banner 背景图
+              accepts:
+                - "image/*"
+              help: Banner 背景图片，仅列表模式生效
         - $formkit: group
           name: photos
           label: 图库插件

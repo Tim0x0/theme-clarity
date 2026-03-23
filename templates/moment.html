@@ -6,56 +6,112 @@
   <th:block th:fragment="head">
     <th:block th:replace="~{modules/head :: moments-head}" />
   </th:block>
-  <th:block th:fragment="content">
-    <div class="moment-back">
-      <a href="/moments" class="back-link">
-        <span class="icon-[ph--arrow-left-bold]"></span>
-        返回瞬间
-      </a>
-    </div>
+  <th:block
+    th:fragment="content"
+    th:with="momentsConfig=${theme.config.plugins?.moments}, content=${moment.spec.content}"
+  >
+    <!--/* ========== 卡片模板详情页（默认） ========== */-->
+    <th:block th:if="${momentsConfig == null or momentsConfig.template == null or momentsConfig.template == 'card'}">
+      <div class="moment-back">
+        <a href="/moments" class="back-link">
+          <span class="icon-[ph--arrow-left-bold]"></span>
+          返回瞬间
+        </a>
+      </div>
 
-    <article th:with="content=${moment.spec.content}" class="moment-detail" style="--delay: 0.1s">
-      <header class="moment-header">
-        <div th:if="${moment.owner != null}" class="author-info">
+      <article class="moment-detail" style="--delay: 0.1s">
+        <header class="moment-header">
+          <div th:if="${moment.owner != null}" class="author-info">
+            <img
+              th:if="${moment.owner.avatar != null}"
+              th:src="${moment.owner.avatar}"
+              th:alt="${moment.owner.displayName}"
+              class="author-avatar"
+              loading="lazy"
+            />
+            <span class="author-name" th:text="${moment.owner.displayName}"></span>
+          </div>
+          <time class="moment-time" th:datetime="${moment.spec.releaseTime}">
+            <span class="icon-[ph--calendar-dots-bold]"></span>
+            <span th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}"></span>
+          </time>
+        </header>
+
+        <div class="moment-body">
+          <div th:if="${not #strings.isEmpty(content.html)}" class="moment-text" th:utext="${content.html}"></div>
+          <th:block th:replace="~{modules/moment/common :: media}"></th:block>
+        </div>
+
+        <footer class="moment-footer">
+          <div th:if="${not #lists.isEmpty(moment.spec.tags)}" class="moment-tags">
+            <a th:each="tag : ${moment.spec.tags}" th:href="@{/moments(tag=${tag})}" class="moment-tag">
+              <span class="tag-hash">#</span>
+              <span th:text="${tag}"></span>
+            </a>
+          </div>
+          <div class="moment-actions">
+            <th:block th:replace="~{modules/moment/common :: like-button}"></th:block>
+            <a href="#comment" class="action-btn comment" title="查看评论">
+              <span class="icon-[ph--chat-circle-bold]"></span>
+              <span th:text="${moment.stats.approvedComment ?: 0}"></span>
+            </a>
+            <th:block th:replace="~{modules/moment/common :: share-button(url='')}"></th:block>
+          </div>
+        </footer>
+      </article>
+    </th:block>
+
+    <!--/* ========== 列表模板详情页 ========== */-->
+    <th:block th:if="${momentsConfig != null and momentsConfig.template == 'list'}">
+      <div class="moment-back moment-back-simple">
+        <a href="/moments" class="back-link">
+          <span class="icon-[ph--arrow-left-bold]"></span>
+          返回瞬间
+        </a>
+      </div>
+
+      <article class="moment-detail-list" style="--delay: 0.1s">
+        <header class="moment-header">
           <img
-            th:if="${moment.owner.avatar != null}"
+            th:if="${moment.owner != null and moment.owner.avatar != null}"
             th:src="${moment.owner.avatar}"
             th:alt="${moment.owner.displayName}"
             class="author-avatar"
             loading="lazy"
           />
-          <span class="author-name" th:text="${moment.owner.displayName}"></span>
-        </div>
-        <time class="moment-time" th:datetime="${moment.spec.releaseTime}">
-          <span class="icon-[ph--calendar-dots-bold]"></span>
-          <span th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}"></span>
-        </time>
-      </header>
+          <div th:if="${moment.owner != null}" class="author-name">
+            <span th:text="${moment.owner.displayName}"></span>
+            <time
+              class="moment-time"
+              th:datetime="${moment.spec.releaseTime}"
+              th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}"
+            ></time>
+          </div>
+        </header>
 
-      <div class="moment-body">
-        <!-- 瞬间文本内容 -->
-        <div th:if="${not #strings.isEmpty(content.html)}" class="moment-text" th:utext="${content.html}"></div>
-        <!-- 瞬间媒体 -->
-        <th:block th:replace="~{modules/moment/common :: media}"></th:block>
-      </div>
+        <div class="moment-body">
+          <div th:if="${not #strings.isEmpty(content.html)}" class="moment-text" th:utext="${content.html}"></div>
+          <th:block th:replace="~{modules/moment/common :: media}"></th:block>
+        </div>
 
-      <footer class="moment-footer">
-        <div th:if="${not #lists.isEmpty(moment.spec.tags)}" class="moment-tags">
-          <a th:each="tag : ${moment.spec.tags}" th:href="@{/moments(tag=${tag})}" class="moment-tag">
-            <span class="tag-hash">#</span>
-            <span th:text="${tag}"></span>
-          </a>
-        </div>
-        <div class="moment-actions">
-          <th:block th:replace="~{modules/moment/common :: like-button}"></th:block>
-          <a href="#comment" class="action-btn comment" title="查看评论">
-            <span class="icon-[ph--chat-circle-bold]"></span>
-            <span th:text="${moment.stats.approvedComment ?: 0}"></span>
-          </a>
-          <th:block th:replace="~{modules/moment/common :: share-button(url='')}"></th:block>
-        </div>
-      </footer>
-    </article>
+        <footer class="moment-footer">
+          <div th:if="${not #lists.isEmpty(moment.spec.tags)}" class="moment-tags">
+            <a th:each="tag : ${moment.spec.tags}" th:href="@{/moments(tag=${tag})}" class="moment-tag">
+              <span class="icon-[ph--tag-bold]"></span>
+              <span th:text="${tag}"></span>
+            </a>
+          </div>
+          <div class="moment-actions">
+            <th:block th:replace="~{modules/moment/common :: like-button}"></th:block>
+            <a href="#comment" class="action-btn comment" title="查看评论">
+              <span class="icon-[ph--chat-circle-bold]"></span>
+              <span th:text="${moment.stats.approvedComment ?: 0}"></span>
+            </a>
+            <th:block th:replace="~{modules/moment/common :: share-button(url='')}"></th:block>
+          </div>
+        </footer>
+      </article>
+    </th:block>
 
     <!-- 评论区 -->
     <th:block

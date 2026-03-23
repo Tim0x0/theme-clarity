@@ -1,0 +1,89 @@
+<th:block th:fragment="content">
+  <article
+    th:each="moment,iterStat : ${moments.items}"
+    th:with="content=${moment.spec.content}, twikooEnabled=${theme.config.comment?.provider == 'twikoo'}"
+    class="moment-list-item"
+    th:id="|moment-${moment.metadata.name}|"
+    th:style="'--delay: ' + ${iterStat.index * 0.05} + 's'"
+  >
+    <!-- 头部：头像 + 作者信息（昵称/时间上下排列） -->
+    <div class="moment-list-meta">
+      <img
+        th:if="${moment.owner != null and moment.owner.avatar != null}"
+        th:src="${moment.owner.avatar}"
+        th:alt="${moment.owner.displayName}"
+        class="moment-list-avatar"
+        loading="lazy"
+      />
+      <span th:unless="${moment.owner != null and moment.owner.avatar != null}" class="moment-list-avatar-placeholder">
+        <span class="icon-[ph--user-bold]"></span>
+      </span>
+      <div class="moment-list-info">
+        <div th:if="${moment.owner != null}" class="moment-list-nick">
+          <span th:text="${moment.owner.displayName}"></span>
+        </div>
+        <time
+          class="moment-list-date"
+          th:datetime="${moment.spec.releaseTime}"
+          th:title="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}"
+          th:text="${#temporals.format(moment.spec.releaseTime, 'yyyy-MM-dd HH:mm')}"
+        ></time>
+      </div>
+    </div>
+
+    <!-- 正文 + 媒体 -->
+    <div class="moment-list-content">
+      <div th:if="${not #strings.isEmpty(content.html)}" class="moment-text" th:utext="${content.html}"></div>
+
+      <th:block th:replace="~{modules/moment/common :: media}"></th:block>
+    </div>
+
+    <!-- 底部：标签 + 操作按钮 -->
+    <div class="moment-list-bottom">
+      <div th:if="${not #lists.isEmpty(moment.spec.tags)}" class="moment-list-tags">
+        <a th:each="tag : ${moment.spec.tags}" th:href="|/moments?tag=${tag}|" class="moment-list-tag">
+          <span class="icon-[ph--tag-bold]"></span>
+          <span th:text="${tag}"></span>
+        </a>
+      </div>
+
+      <div class="moment-actions">
+        <th:block th:replace="~{modules/moment/common :: like-button}"></th:block>
+        <button
+          th:if="${haloCommentEnabled and !twikooEnabled}"
+          class="action-btn comment"
+          title="评论"
+          onclick="this.closest('.moment-list-item').querySelector('.moment-comment')?.classList.toggle('show')"
+        >
+          <span class="icon-[ph--chat-circle-bold]"></span>
+          <span th:text="${moment.stats.approvedComment ?: 0}"></span>
+        </button>
+        <a
+          th:if="${twikooEnabled}"
+          class="action-btn comment"
+          title="查看评论"
+          th:href="|/moments/${moment.metadata.name}#comment|"
+        >
+          <span class="icon-[ph--chat-circle-bold]"></span>
+          <span th:text="${moment.stats.approvedComment ?: 0}"></span>
+        </a>
+        <th:block
+          th:replace="~{modules/moment/common :: share-button(url=|/moments/${moment.metadata.name}|)}"
+        ></th:block>
+      </div>
+    </div>
+
+    <!-- 评论区折叠 -->
+    <div
+      th:if="${haloCommentEnabled and !twikooEnabled}"
+      class="moment-comment"
+      th:id="|comment-${moment.metadata.name}|"
+    >
+      <div class="comment-header">
+        <span class="icon-[ph--chat-circle-text-bold]"></span>
+        <span>评论</span>
+      </div>
+      <halo:comment group="moment.halo.run" kind="Moment" th:attr="name=${moment.metadata.name}" />
+    </div>
+  </article>
+</th:block>
